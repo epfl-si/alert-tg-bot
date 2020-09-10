@@ -8,10 +8,10 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
   process.exit(1)
 }
 
-const sendMessage = (msgChatId) => {
+const sendMessage = async (msgChatId) => {
   // const msgChatId = '9917772'
   const msgContent = ' Super MSG !'
-  bot.sendMessage(msgChatId, msgContent)
+  return await bot.sendMessage(msgChatId, msgContent)
 }
 
 const validateGroupOrChatID = (id) => {

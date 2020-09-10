@@ -14,16 +14,15 @@ app.get('/', (req, res) => {
 
 // POST:
 // query example: echo '{ "hello": "World" }' | http POST http://localhost:3000/-460587583
-app.post('/*', jsonParser, (req, res) => {
-  console.log('url', req.url)
-  console.log('query', req.query)
-  console.log('body', req.body)
-  console.log('headers', req.headers)
-
+app.post('/*', jsonParser, async (req, res) => {
   let chatOrGroupID = req.url.replace(/\//, '')
   if (tg.validateGroupOrChatID(chatOrGroupID)) {
-    tg.sendMessage(chatOrGroupID)
-    res.send(`Telegram message was sent to ${chatOrGroupID}!`)
+    try {
+      let response = await tg.sendMessage(chatOrGroupID)
+      res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
+    } catch (e) {
+      res.send(`Error: ${e.description}`)
+    }
   } else {
     console.error('Please provide a valid chat or group ID')
     res.send('Please provide a valid chat or group ID')
