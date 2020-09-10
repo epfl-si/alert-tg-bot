@@ -1,11 +1,13 @@
 const express = require('express')
 const tg = require('./telegram.js')
-
 const app = express()
 const port = 3000
 
 let bodyParser = require('body-parser')
 let jsonParser = bodyParser.json()
+
+// Handle bot events
+tg.manageBotEvents()
 
 // GET
 app.get('/', (req, res) => {
