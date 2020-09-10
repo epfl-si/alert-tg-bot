@@ -21,26 +21,7 @@ app.post('/*', jsonParser, async (req, res) => {
   let chatOrGroupID = req.url.replace(/\//, '')
   if (tg.validateGroupOrChatID(chatOrGroupID)) {
     try {
-      
-      let status = req.body.status
-      let startsAt = req.body.startsAt
-      let endsAt = req.body.endsAt
-
-      // Change the generator URL to the one we can actually access...
-      // TODO: obviously, it has to be changed with the `-tst` environment
-      if (req.body.generatorURL) {
-        let url = new URL(req.body.generatorURL)
-        url.host = "prometheus.idev-fsd.ml"
-        url.port = 80
-        url = url.toString()
-      }
-
-      console.log(req.body);
-      console.log(req.body.alerts);
-      console.log(req.body.commonLabels);
-      console.log(req.body.commonAnnotations);
-
-      let response = await tg.sendMessage(chatOrGroupID, "test")
+      let response = await tg.sendMessage(chatOrGroupID, req.body)
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
     } catch (e) {
       console.error(e)

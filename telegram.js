@@ -8,10 +8,38 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
   process.exit(1)
 }
 
-const sendMessage = async (msgChatId, msgContent) => {
-  // const msgChatId = '9917772'
-  
-  return await bot.sendMessage(msgChatId, msgContent)
+const sendMessage = async (chatID, data) => {
+  let message = _formatAlertMessage(data)
+  return await bot.sendMessage(chatID, message, { parseMode: 'markdown' })
+}
+
+const _formatAlertMessage = (data) => {
+  // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥
+  let msg = `🔥 Firing 🔥\n\n`
+
+  let status = data.status
+  let startsAt = data.startsAt
+  let endsAt = data.endsAt
+
+  // console.log(data);
+  // console.log(data.alerts);
+  // console.log(data.commonLabels);
+  // console.log(data.commonAnnotations);
+
+  msg += `Title: _${data.commonAnnotations.summary}_\n\n`
+  msg += `Description: \`${data.commonAnnotations.description}\`\n\n`
+
+  // Change the generator URL to the one we can actually access...
+  // TODO: obviously, it has to be changed with the `-tst` environment
+  if (data.generatorURL) {
+    let url = new URL(data.generatorURL)
+    url.host = "prometheus.idev-fsd.ml"
+    url.port = 80
+    url = url.toString()
+    msg += `📣 [Link](${url})\n`
+  }
+
+  return msg
 }
 
 const validateGroupOrChatID = (id) => {
