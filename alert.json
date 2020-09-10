@@ -1,0 +1,49 @@
+{
+   "receiver":"debugapi",
+   "status":"firing",
+   "alerts":[
+      {
+         "status":"firing",
+         "labels":[
+            "Object"
+         ],
+         "annotations":[
+            "Object"
+         ],
+         "startsAt":"2020-09-10T03:28:25.863266294Z",
+         "endsAt":"0001-01-01T00:00:00Z",
+         "generatorURL":"http://fc6b59c18a50:9090/graph?g0.expr=probe_http_status_code%7Bslug%3D%22canari%22%7D+%21%3D+404&g0.tab=1",
+         "fingerprint":"0edfa7ea6f5bf7e7"
+      }
+   ],
+   "groupLabels":{
+      "alertname":"Canari status code is not 404",
+      "c2c":"yes",
+      "instance":"bbe-paris.idev-fsd.ml:80",
+      "job":"blackbox-paris",
+      "origin":"paris",
+      "probe":"blackbox",
+      "sendto":"telegram",
+      "severity":"page",
+      "slug":"canari"
+   },
+   "commonLabels":{
+      "alertname":"Canari status code is not 404",
+      "c2c":"yes",
+      "instance":"bbe-paris.idev-fsd.ml:80",
+      "job":"blackbox-paris",
+      "origin":"paris",
+      "probe":"blackbox",
+      "sendto":"telegram",
+      "severity":"page",
+      "slug":"canari"
+   },
+   "commonAnnotations":{
+      "description":"Expr is probe_http_status_code{slug=\\'canari\\'} != 404",
+      "summary":"Canari HTTP status is not 200"
+   },
+   "externalURL":"http://6948abec688d:9093",
+   "version":"4",
+   "groupKey":"{}/{sendto=\"telegram\"}:{alertname=\"Canari status code is not 404\", c2c=\"yes\", instance=\"bbe-paris.idev-fsd.ml:80\", job=\"blackbox-paris\", origin=\"paris\", probe=\"blackbox\", sendto=\"telegram\", severity=\"page\", slug=\"canari\"}",
+   "truncatedAlerts":0
+}

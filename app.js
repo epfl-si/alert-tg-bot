@@ -1,5 +1,6 @@
 const express = require('express')
 const tg = require('./telegram.js')
+const pjson = require('./package.json');
 const app = express()
 const port = 3000
 
@@ -15,12 +16,27 @@ app.get('/', (req, res) => {
 })
 
 // POST:
-// query example: echo '{ "hello": "World" }' | http POST http://localhost:3000/-460587583
+// query example: http POST http://localhost:3000/-460587583 < alert.json
 app.post('/*', jsonParser, async (req, res) => {
   let chatOrGroupID = req.url.replace(/\//, '')
   if (tg.validateGroupOrChatID(chatOrGroupID)) {
     try {
-      let response = await tg.sendMessage(chatOrGroupID)
+      
+      let status = req.body.status
+      let startsAt = req.body.startsAt
+      let endsAt = req.body.endsAt
+      
+      let url = "https://prometheus.idev-fsd.ml/" + new URL(req.body.generatorURL).path
+
+      console.log("URL: " + url);
+      
+      console.log(req.body);
+      console.log(req.body.alerts);
+      console.log(req.body.alerts.annotations);
+      console.log(req.body.commonLabels);
+      console.log(req.body.commonAnnotations);
+
+      let response = await tg.sendMessage(chatOrGroupID, "test")
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
     } catch (e) {
       res.send(`Error: ${e.description}`)
@@ -32,5 +48,6 @@ app.post('/*', jsonParser, async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  const pjson = require('./package.json');
+  console.log(`Example app (version: ${pjson}) listening at http://localhost:${port}`)
 })
