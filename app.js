@@ -25,20 +25,25 @@ app.post('/*', jsonParser, async (req, res) => {
       let status = req.body.status
       let startsAt = req.body.startsAt
       let endsAt = req.body.endsAt
-      
-      let url = "https://prometheus.idev-fsd.ml/" + new URL(req.body.generatorURL).path
 
-      console.log("URL: " + url);
-      
+      // Change the generator URL to the one we can actually access...
+      // TODO: obviously, it has to be changed with the `-tst` environment
+      if (req.body.generatorURL) {
+        let url = new URL(req.body.generatorURL)
+        url.host = "prometheus.idev-fsd.ml"
+        url.port = 80
+        url = url.toString()
+      }
+
       console.log(req.body);
       console.log(req.body.alerts);
-      console.log(req.body.alerts.annotations);
       console.log(req.body.commonLabels);
       console.log(req.body.commonAnnotations);
 
       let response = await tg.sendMessage(chatOrGroupID, "test")
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
     } catch (e) {
+      console.error(e)
       res.send(`Error: ${e.description}`)
     }
   } else {
@@ -49,5 +54,5 @@ app.post('/*', jsonParser, async (req, res) => {
 
 app.listen(port, () => {
   const pjson = require('./package.json');
-  console.log(`Example app (version: ${pjson}) listening at http://localhost:${port}`)
+  console.log(`Example app (version: ${pjson.version}) listening at http://localhost:${port}`)
 })
