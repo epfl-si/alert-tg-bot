@@ -65,41 +65,43 @@ const validateGroupOrChatID = (id) => {
   return id.match(re)
 }
 
-const manageBotEvents = () => {
+const manageBotEvents = async () => {
+  let meBot = await bot.getMe()
+  let botName = meBot.username
+
   bot.on(/^\/say (.+)$/, (msg, props) => {
     console.log('say')
     const text = props.match[1]
-    return bot.sendMessage(msg.from.id, text, { replyToMessage: msg.message_id })
+    return bot.sendMessage(msg.chat.id, text, { replyToMessage: msg.message_id })
   })
-  bot.on(/^\/start$/, (msg) => {
-    console.log('start')
+  bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
     const text = `This bot is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info.`
-    return bot.sendMessage(msg.from.id, text)
+    return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(/^\/help$/, (msg) => {
+  bot.on(new RegExp(`^\/help(@${botName})?$`), (msg) => {
     console.log('help')
     const text = `[WIP] /help list available commands.`
-    return bot.sendMessage(msg.from.id, text)
+    return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(/^\/status/, (msg) => {
+  bot.on(new RegExp(`^\/status(@${botName})?$`), (msg) => {
     console.log('status')
     const text = `[WIP] /status will list the current status.`
-    return bot.sendMessage(msg.from.id, text)
+    return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(/^\/alerts/, (msg) => {
+  bot.on(new RegExp(`^\/alerts(@${botName})?$`), (msg) => {
     console.log('alerts')
     const text = `[WIP] /alerts will list the current alerts list. /alert [group] to /alerts/groups.`
-    return bot.sendMessage(msg.from.id, text)
+    return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(/^\/receivers/, (msg) => {
+  bot.on(new RegExp(`^\/receivers(@${botName})?$`), (msg) => {
     console.log('receivers')
     const text = `[WIP] /receivers will list the current receivers list.`
-    return bot.sendMessage(msg.from.id, text)
+    return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(/^\/silences/, (msg) => {
+  bot.on(new RegExp(`^\/silences(@${botName})?$`), (msg) => {
     console.log('silences')
     const text = `[WIP] /silences will list the current alerts list. /silence [id] to /silence/{silenceID}.`
-    return bot.sendMessage(msg.from.id, text)
+    return bot.sendMessage(msg.chat.id, text)
   })
   // Inline button callback
   bot.on('callbackQuery', (msg) => {
