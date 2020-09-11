@@ -12,7 +12,7 @@ List a commands that can be used in a development cycle:
   * Build image:  
     `docker build -t epflsi/alert-tg-bot .`
   * Run image:  
-    `docker run -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN -p 3000:3000 --name alert-tg-bot epflsi/alert-tg-bot`
+    `docker run -e DEBUG=true -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN -e AM_BASIC_AUTH_USER=${AM_BASIC_AUTH_USER} -e AM_BASIC_AUTH_PASS=${AM_BASIC_AUTH_PASS} -p 3000:3000 --name alert-tg-bot epflsi/alert-tg-bot`
   * Check the logs:  
     `docker logs -f alert-tg-bot`
   * Send a request:  
@@ -26,6 +26,8 @@ List a commands that can be used in a development cycle:
 docker run -d --rm \
            --name alert-tg-bot \
            -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+           -e AM_BASIC_AUTH_USER=$AM_BASIC_AUTH_USER \
+           -e AM_BASIC_AUTH_PASS=$AM_BASIC_AUTH_PASS \
            -p 3000:3000 \
            epflsi/alert-tg-bot
 ```

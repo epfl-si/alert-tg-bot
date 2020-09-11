@@ -1,5 +1,7 @@
 const TeleBot = require('telebot')
 const moment = require('moment')
+const am = require('./alertmanager.js')
+const debug_mode = process.env.DEBUG || false
 
 let bot = undefined
 if (process.env.TELEGRAM_BOT_TOKEN) {
@@ -74,25 +76,43 @@ const manageBotEvents = async () => {
     const text = props.match[1]
     return bot.sendMessage(msg.chat.id, text, { replyToMessage: msg.message_id })
   })
+
   bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
     const text = `This bot is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info.`
     return bot.sendMessage(msg.chat.id, text)
   })
+
   bot.on(new RegExp(`^\/help(@${botName})?$`), (msg) => {
     console.log('help')
     const text = `[WIP] /help list available commands.`
     return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(new RegExp(`^\/status(@${botName})?$`), (msg) => {
-    console.log('status')
-    const text = `[WIP] /status will list the current status.`
-    return bot.sendMessage(msg.chat.id, text)
+
+  bot.on(new RegExp(`^\/status(@${botName})?$`), async (msg) => {
+    let am_status = await am.getAlertmanagerAPI('status')
+    if (debug_mode) console.debug(am_status.versionInfo)
+    let text = `**Alertmanager infos**\n`
+    for (const [key, value] of Object.entries(am_status.versionInfo)) {
+      text += `\t  - ${key}: \`${value}\`\n`
+    }
+    return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
-  bot.on(new RegExp(`^\/alerts(@${botName})?$`), (msg) => {
-    console.log('alerts')
-    const text = `[WIP] /alerts will list the current alerts list. /alert [group] to /alerts/groups.`
-    return bot.sendMessage(msg.chat.id, text)
+
+  bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
+    let alerts = await am.getAlertmanagerAPI('alerts')
+    if (debug_mode) console.debug(alerts)
+    let text = `**Alertmanager infos**\n\n`
+    alerts.forEach((items) => {
+      text += `‣ ${items.labels.alertname}: ${items.annotations.summary}\n`
+      text += `\t  • description: \`${items.annotations.description}\`\n`
+      text += `\t  • starts: \`${items.startsAt}\`\n`
+      // It seems that tg does not accept URL with prom query in them :/
+      // text += `\t  • URL: [generatorURL](${items.generatorURL})\n`
+      text += `\t  • job: \`${items.labels.job}\`\n\n`
+    })
+    return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
+
   bot.on(new RegExp(`^\/receivers(@${botName})?$`), (msg) => {
     console.log('receivers')
     const text = `[WIP] /receivers will list the current receivers list.`

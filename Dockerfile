@@ -16,8 +16,7 @@ RUN npm install
 
 # Copy all files from current folder
 # inside our image in the folder `/app`
-COPY app.js /app
-COPY telegram.js /app
+COPY *.js /app/
 
 # Start the app
 ENTRYPOINT ["node", "app.js"]
