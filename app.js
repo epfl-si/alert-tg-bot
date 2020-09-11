@@ -3,6 +3,7 @@ const tg = require('./telegram.js')
 const pjson = require('./package.json')
 const app = express()
 const port = 3000
+const debug_mode = process.env.DEBUG || false
 
 let bodyParser = require('body-parser')
 let jsonParser = bodyParser.json()
@@ -18,7 +19,9 @@ app.get('/', (req, res) => {
 // POST:
 app.post('/*', jsonParser, async (req, res) => {
   let chatOrGroupID = req.url.replace(/\//, '')
-  console.dir(req.body, { depth: null })
+  if (debug_mode) {
+    console.dir(req.body, { depth: null })
+  }
   if (tg.validateGroupOrChatID(chatOrGroupID)) {
     try {
       let response = await tg.sendMessage(chatOrGroupID, req.body)

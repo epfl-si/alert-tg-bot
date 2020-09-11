@@ -11,7 +11,7 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
 
 const sendMessage = async (chatID, data) => {
   let message = _formatAlertMessage(data)
-  console.log(`${moment().format()}: send message to ${chatID}\n${message}\n`)
+  console.log(`${moment().format()}: send message to ${chatID}\n${message.message}\n`)
   let replyMarkup = bot.inlineKeyboard([
     [
       bot.inlineButton('do something', { callback: '{"txt": "doing something"}' }),
@@ -67,7 +67,7 @@ const validateGroupOrChatID = (id) => {
 
 const manageBotEvents = () => {
   bot.on(/^\/say (.+)$/, (msg, props) => {
-    console.log('hey2')
+    console.log('say')
     const text = props.match[1]
     return bot.sendMessage(msg.from.id, text, { replyToMessage: msg.message_id })
   })
@@ -103,7 +103,9 @@ const manageBotEvents = () => {
   })
   // Inline button callback
   bot.on('callbackQuery', (msg) => {
-    return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`, true)
+    // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
+    bot.answerCallbackQuery(msg.id, `Inline button callback: ${JSON.parse(msg.data).txt}`, true)
+    return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
   })
 
   bot.start()

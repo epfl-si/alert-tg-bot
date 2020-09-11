@@ -23,7 +23,7 @@ build:
 
 .PHONY: run
 run:
-	docker run -d --rm -e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} -p 3000:3000 --name ${IMAGE_NAME} ${ORG_NAME}/${IMAGE_NAME}
+	docker run -d --rm -e DEBUG=true -e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} -p 3000:3000 --name ${IMAGE_NAME} ${ORG_NAME}/${IMAGE_NAME}
 
 .PHONY: logs
 logs:
