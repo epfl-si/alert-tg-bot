@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 // POST:
 app.post('/*', jsonParser, async (req, res) => {
   let chatOrGroupID = req.url.replace(/\//, '')
+  console.dir(req.body, { depth: null });
   if (tg.validateGroupOrChatID(chatOrGroupID)) {
     try {
       let response = await tg.sendMessage(chatOrGroupID, req.body)
