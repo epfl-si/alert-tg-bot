@@ -21,22 +21,12 @@ const _formatAlertMessage = (data) => {
   let startsAt = data.startsAt
   let endsAt = data.endsAt
 
-  // console.log(data);
-  // console.log(data.alerts);
-  // console.log(data.commonLabels);
-  // console.log(data.commonAnnotations);
-
-  msg += `Title: _${data.commonAnnotations.summary}_\n\n`
-  msg += `Description: \`${data.commonAnnotations.description}\`\n\n`
-
-  // Change the generator URL to the one we can actually access...
-  // TODO: obviously, it has to be changed with the `-tst` environment
-  if (data.generatorURL) {
-    let url = new URL(data.generatorURL)
-    url.host = "prometheus.idev-fsd.ml"
-    url.port = 80
-    url = url.toString()
-    msg += `📣 [Link](${url})\n`
+  if (['commonAnnotations', 'externalURL'].every((key) => Object.keys(data).includes(key))) {
+    msg += `Title: _${data.commonAnnotations.summary}_\n\n`
+    msg += `Description: \`${data.commonAnnotations.description}\`\n\n`
+    msg += `📣 [Link](${data.externalURL})\n`
+  } else {
+    throw new Error(`Data send by alertmanager are bad: ${data}`)
   }
 
   return msg
