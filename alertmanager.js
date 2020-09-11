@@ -10,7 +10,7 @@ if (!bAuthUser || !bAuthPass) {
   process.exit(1)
 }
 const options = { headers: { Authorization: 'Basic ' + Buffer.from(`${bAuthUser}:${bAuthPass}`).toString('base64') } }
-const AM_URL = 'https://am.idev-fsd.ml/api/v2'
+const AM_URL = process.env.AM_URL + '/api/v2' || 'https://am.idev-fsd.ml/api/v2'
 
 const getAlertmanagerAPI = async (endpoint) => {
   return await fetch(`${AM_URL}/${endpoint}`, options)
