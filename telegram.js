@@ -1,4 +1,5 @@
 const TeleBot = require('telebot')
+const moment = require('moment')
 
 let bot = undefined
 if (process.env.TELEGRAM_BOT_TOKEN) {
@@ -13,17 +14,34 @@ const sendMessage = async (chatID, data) => {
   return await bot.sendMessage(chatID, message, { parseMode: 'markdown' })
 }
 
+const _humanizeDuration = function (eventDate) {
+  let eventMDuration = moment.duration(moment({}).diff(moment(eventDate)), 'seconds')
+  let eventDurationString = ''
+  if (eventMDuration.days() > 0)
+    eventDurationString += ' ' + moment.duration(eventMDuration.days(), 'days').humanize()
+  if (eventMDuration.hours() > 0)
+    eventDurationString += ' ' + moment.duration(eventMDuration.hours(), 'hours').humanize()
+  if (eventMDuration.minutes() > 0)
+    eventDurationString += ' ' + moment.duration(eventMDuration.minutes(), 'minutes').humanize()
+  return eventDurationString.trim()
+}
+
 const _formatAlertMessage = (data) => {
   // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥
   let msg = `🔥 Firing 🔥\n\n`
 
   let status = data.status
-  let startsAt = data.startsAt
+  let startsAt = data.alerts[0].startsAt
   let endsAt = data.endsAt
 
-  if (['commonAnnotations', 'externalURL'].every((key) => Object.keys(data).includes(key))) {
+  let firingSince = _humanizeDuration(startsAt)
+
+  if (
+    ['alerts', 'commonAnnotations', 'externalURL'].every((key) => Object.keys(data).includes(key))
+  ) {
     msg += `Title: _${data.commonAnnotations.summary}_\n\n`
     msg += `Description: \`${data.commonAnnotations.description}\`\n\n`
+    msg += `Firing since ${firingSince}.\n`
     msg += `📣 [Link](${data.externalURL})\n`
   } else {
     throw new Error(`Data send by alertmanager are bad: ${data}`)
