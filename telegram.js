@@ -12,7 +12,13 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
 const sendMessage = async (chatID, data) => {
   let message = _formatAlertMessage(data)
   console.log(`${moment().format()}: send message to ${chatID}\n${message}\n`)
-  return await bot.sendMessage(chatID, message, { parseMode: 'markdown' })
+  let replyMarkup = bot.inlineKeyboard([
+    [
+      bot.inlineButton('do something', { callback: '{"txt": "doing something"}' }),
+      bot.inlineButton('view prometheus query', { url: message.promLink }),
+    ],
+  ])
+  return await bot.sendMessage(chatID, message.message, { replyMarkup, parseMode: 'markdown' })
 }
 
 const _humanizeDuration = function (eventDate) {
@@ -25,20 +31,28 @@ const _humanizeDuration = function (eventDate) {
 }
 
 const _formatAlertMessage = (data) => {
-  // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥
-  let msg = `🔥 Firing 🔥\n\n`
+  let msg = {}
+  msg.message = ''
+  msg.status = data.status
+  msg.startsAt = data.alerts[0].startsAt
+  msg.promLink = data.alerts[0].generatorURL
+  msg.firingSince = _humanizeDuration(msg.startsAt)
 
-  let status = data.status
-  let startsAt = data.alerts[0].startsAt
-  let endsAt = data.endsAt
-
-  let firingSince = _humanizeDuration(startsAt)
+  switch (msg.status) {
+    // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥
+    case 'firing':
+      msg.message += `🔥 Firing 🔥\n\n`
+      break
+    default:
+      msg.message += `🚨 Alerting 🚨\n\n`
+      break
+  }
 
   if (['alerts', 'commonAnnotations', 'externalURL'].every((key) => Object.keys(data).includes(key))) {
-    msg += `Title: _${data.commonAnnotations.summary}_\n\n`
-    msg += `Description: \`${data.commonAnnotations.description}\`\n\n`
-    msg += `Firing since ${firingSince}.\n`
-    msg += `📣 [Link](${data.externalURL})\n`
+    msg.message += `Title: _${data.commonAnnotations.summary}_\n\n`
+    msg.message += `Description: \`${data.commonAnnotations.description}\`\n\n`
+    msg.message += `Firing since ${msg.firingSince}.\n\n`
+    msg.message += `📣 [view on prometheus](${msg.promLink}) | [to the alertmanager](${data.externalURL})\n`
   } else {
     throw new Error(`Data send by alertmanager are bad: ${data}`)
   }
@@ -86,6 +100,10 @@ const manageBotEvents = () => {
     console.log('silences')
     const text = `[WIP] /silences will list the current alerts list. /silence [id] to /silence/{silenceID}.`
     return bot.sendMessage(msg.from.id, text)
+  })
+  // Inline button callback
+  bot.on('callbackQuery', (msg) => {
+    return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`, true)
   })
 
   bot.start()
