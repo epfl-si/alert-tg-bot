@@ -1,6 +1,6 @@
 const express = require('express')
 const tg = require('./telegram.js')
-const pjson = require('./package.json');
+const pjson = require('./package.json')
 const app = express()
 const port = 3000
 
@@ -16,7 +16,6 @@ app.get('/', (req, res) => {
 })
 
 // POST:
-// query example: http POST http://localhost:3000/-460587583 < alert.json
 app.post('/*', jsonParser, async (req, res) => {
   let chatOrGroupID = req.url.replace(/\//, '')
   if (tg.validateGroupOrChatID(chatOrGroupID)) {
@@ -34,6 +33,6 @@ app.post('/*', jsonParser, async (req, res) => {
 })
 
 app.listen(port, () => {
-  const pjson = require('./package.json');
+  const pjson = require('./package.json')
   console.log(`Example app (version: ${pjson.version}) listening at http://localhost:${port}`)
 })
