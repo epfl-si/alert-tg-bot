@@ -1,6 +1,6 @@
 import moment from 'moment'
-import { getAlertmanagerAPI, postAlertmanagerAPI, postTestAlert } from './alertmanager'
 import telebot from 'telebot'
+import { getAlertmanagerAPI, postAlertmanagerAPI, postTestAlert } from './alertmanager'
 const debugMode = process.env.DEBUG || false
 
 let bot: telebot
@@ -75,6 +75,12 @@ const validateGroupOrChatID = (id: string) => {
 const manageBotEvents = async () => {
   const meBot = await bot.getMe()
   const botName = meBot.username
+
+  // logger
+  bot.on('text', (msg, props) => {
+    let user = `@${msg.from.username}` || `${msg.from.first_name} ${msg.from.last_name}` || msg.from.first_name || msg.from.id
+    console.log(`${moment().format()}: ${user} send msg#${msg.message_id}: ${msg.text}`)
+  })
 
   bot.on(/^\/say (.+)$/, (msg, props) => {
     console.log('say')
