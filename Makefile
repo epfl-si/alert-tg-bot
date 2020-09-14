@@ -11,7 +11,7 @@ dev:
 
 .PHONY: release
 release:
-	$(MAKE) rm build tag push
+	$(MAKE) rm docker-build tag push
 
 .PHONY: rm
 rm:
