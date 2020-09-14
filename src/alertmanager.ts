@@ -4,18 +4,18 @@
 import nodeFetch, { Headers } from 'node-fetch'
 import moment from 'moment'
 
-const bAuthUser = process.env.AM_BASIC_AUTH_USER || false
-const bAuthPass = process.env.AM_BASIC_AUTH_PASS || false
+const bAuthUser: string | boolean = process.env.AM_BASIC_AUTH_USER || false
+const bAuthPass: string | boolean = process.env.AM_BASIC_AUTH_PASS || false
 
 if (!bAuthUser || !bAuthPass) {
   console.error('Please define the AM_BASIC_AUTH_USER and AM_BASIC_AUTH_PASS environment variables')
   process.exit(1)
 }
-const headers = new Headers()
+const headers: any = new Headers()
 headers.append('Authorization', `Basic ${Buffer.from(`${bAuthUser}:${bAuthPass}`).toString('base64')}`)
 const options: any = { headers }
-const AM_URL = process.env.AM_URL || 'https://am.idev-fsd.ml'
-const AM_API_URL = `${AM_URL}/api/v2`
+const AM_URL: string = process.env.AM_URL || 'https://am.idev-fsd.ml'
+const AM_API_URL: string = `${AM_URL}/api/v2`
 
 const getAlertmanagerAPI = async (endpoint: string) => {
   return await nodeFetch(`${AM_API_URL}/${endpoint}`, options)

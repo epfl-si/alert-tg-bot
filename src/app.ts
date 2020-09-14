@@ -1,17 +1,16 @@
-const express = require('express')
+import express from 'express'
 import { manageBotEvents, sendMessage, validateGroupOrChatID } from './telegram'
-const app = express()
-const port = 3000
-const debugMode = process.env.DEBUG || false
-
-const bodyParser = require('body-parser')
+const app: express.Application = express()
+const port: number = 3000
+const debugMode: string|boolean = process.env.DEBUG || false
+import bodyParser from 'body-parser'
 const jsonParser = bodyParser.json()
 
 // Handle bot events
 manageBotEvents()
 
 // GET
-app.get('/', (req: any, res: any) => {
+app.get('/', (req: any, res: any): void => {
   res.send('alert-tg-bot')
 })
 

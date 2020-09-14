@@ -5,9 +5,13 @@ IMAGE_NAME=alert-tg-bot
 TG_GROUP_ID=-460587583
 
 
+.PHONY: help
+help:
+	@echo "Please read the Makefile to see the TARGETS"
+
 .PHONY: dev
 dev:
-	$(MAKE) rm ts-lint ts-transpile docker-build docker-run http-post docker-logs
+	$(MAKE) rm npmci ts-lint ts-transpile docker-build docker-run http-post docker-logs
 
 .PHONY: release
 release:
@@ -17,13 +21,17 @@ release:
 rm:
 	docker rm -f ${IMAGE_NAME} || true
 
-.PHONY: ts-transpile
-ts-transpile:
-	rm -rf dist/* && tsc
+.PHONY: npmci
+npmci:
+	npm ci
 
 .PHONY: ts-lint
 ts-lint:
 	npx tslint --fix src/*.ts --project tsconfig.json
+
+.PHONY: ts-transpile
+ts-transpile:
+	rm -rf dist/* && tsc
 
 .PHONY: docker-build
 docker-build:
