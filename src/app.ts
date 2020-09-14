@@ -1,28 +1,27 @@
 const express = require('express')
-const tg = require('./telegram.js')
-const pjson = require('./package.json')
+import { manageBotEvents, sendMessage, validateGroupOrChatID } from './telegram'
 const app = express()
 const port = 3000
-const debug_mode = process.env.DEBUG || false
+const debugMode = process.env.DEBUG || false
 
-let bodyParser = require('body-parser')
-let jsonParser = bodyParser.json()
+const bodyParser = require('body-parser')
+const jsonParser = bodyParser.json()
 
 // Handle bot events
-tg.manageBotEvents()
+manageBotEvents()
 
 // GET
-app.get('/', (req, res) => {
+app.get('/', (req: any, res: any) => {
   res.send('alert-tg-bot')
 })
 
 // POST:
-app.post('/*', jsonParser, async (req, res) => {
-  let chatOrGroupID = req.url.replace(/\//, '')
-  if (debug_mode) console.dir(req.body, { depth: null })
-  if (tg.validateGroupOrChatID(chatOrGroupID)) {
+app.post('/*', jsonParser, async (req: any, res: any) => {
+  const chatOrGroupID = req.url.replace(/\//, '')
+  if (debugMode) console.dir(req.body, { depth: null })
+  if (validateGroupOrChatID(chatOrGroupID)) {
     try {
-      let response = await tg.sendMessage(chatOrGroupID, req.body)
+      const response = await sendMessage(chatOrGroupID, req.body)
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
     } catch (e) {
       console.error(e)
@@ -35,6 +34,6 @@ app.post('/*', jsonParser, async (req, res) => {
 })
 
 app.listen(port, () => {
-  const pjson = require('./package.json')
+  const pjson = require('../package.json')
   console.log(`Example app (version: ${pjson.version}) listening at http://localhost:${port}`)
 })

@@ -16,7 +16,7 @@ RUN npm install
 
 # Copy all files from current folder
 # inside our image in the folder `/app`
-COPY *.js /app/
+COPY dist/*.js /app/src/
 
 # Start the app
-ENTRYPOINT ["node", "app.js"]
+ENTRYPOINT ["node", "src/app.js"]

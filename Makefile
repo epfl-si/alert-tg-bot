@@ -7,7 +7,7 @@ TG_GROUP_ID=-460587583
 
 .PHONY: dev
 dev:
-	$(MAKE) rm build run post logs
+	$(MAKE) rm ts-lint ts-transpile docker-build docker-run http-post docker-logs
 
 .PHONY: release
 release:
@@ -17,12 +17,20 @@ release:
 rm:
 	docker rm -f ${IMAGE_NAME} || true
 
-.PHONY: build
-build:
+.PHONY: ts-transpile
+ts-transpile:
+	rm -rf dist/* && tsc
+
+.PHONY: ts-lint
+ts-lint:
+	npx tslint --fix src/*.ts --project tsconfig.json
+
+.PHONY: docker-build
+docker-build:
 	docker build -t ${ORG_NAME}/${IMAGE_NAME} .
 
-.PHONY: run
-run:
+.PHONY: docker-run
+docker-run:
 	docker run -d --rm \
 		-e DEBUG=true \
 		-e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
@@ -32,12 +40,12 @@ run:
 		--name ${IMAGE_NAME} \
 		${ORG_NAME}/${IMAGE_NAME}
 
-.PHONY: logs
-logs:
+.PHONY: docker-logs
+docker-logs:
 	docker logs -f ${IMAGE_NAME}
 
-.PHONY: post
-post:
+.PHONY: http-post
+http-post:
 	http POST http://localhost:3000/${TG_GROUP_ID} < alert.json
 
 .PHONY: tag
