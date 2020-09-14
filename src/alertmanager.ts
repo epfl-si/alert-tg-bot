@@ -1,9 +1,5 @@
-/**
- * This file handle the request to the alertmanager
- */
-import nodeFetch, { Headers } from 'node-fetch'
 import moment from 'moment'
-
+import nodeFetch, { Headers } from 'node-fetch'
 const bAuthUser: string | boolean = process.env.AM_BASIC_AUTH_USER || false
 const bAuthPass: string | boolean = process.env.AM_BASIC_AUTH_PASS || false
 
@@ -27,10 +23,34 @@ const postAlertmanagerAPI = async (endpoint: string, body: string) => {
   options.method = 'post'
   options.body = JSON.stringify(body)
   options.headers.append('Content-Type', 'application/json')
-  console.log(options)
+  // console.log(options)
   return await nodeFetch(`${AM_API_URL}/${endpoint}`, options)
-    .then(res => res.json())
-    .then(json => json)
+    .then((res) => {
+      console.log(`postAlertmanagerAPI status: ${res.status} (${res.statusText})`)
+      if (res.size > 0 && res.ok && isJsonString(res.body)) {
+        return res.json()
+      }
+      return res.text()
+
+    })
+    .then((body) => {
+      console.log('body', body || 'is empty')
+      return body || 'body is empty'
+    })
+    .catch(err => console.error(err))
+}
+
+// https://stackoverflow.com/a/31881889/960623
+const isJsonString = (text: any) => {
+  if (typeof text !== 'string') {
+    return false
+  }
+  try {
+    JSON.parse(text)
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 const postTestAlert = async () => {
@@ -47,6 +67,8 @@ const postTestAlert = async () => {
         },
         annotations: {
           message: 'Something is on fire_2',
+          description: 'Something is on fire_2',
+          summary: 'Something is on fire_2',
         },
         startsAt: `${moment().toISOString()}`, // 2020-09-13T16:09:40.449Z
         endsAt: `${moment().add(5, 'hours').toISOString()}`, // + 5 hours
@@ -69,11 +91,16 @@ const postTestAlert = async () => {
 
   // --data '[{"labels":{"alertname":"TestAlert1"}}]'
   console.log(
-    `curl --header "Content-Type: application/json" --header "Authorization: Basic ${Buffer.from(`${bAuthUser}:${bAuthPass}`).toString(
+    `curl -i --header "Content-Type: application/json" --header "Authorization: Basic ${Buffer.from(`${bAuthUser}:${bAuthPass}`).toString(
       'base64',
-    )}" --request POST  --data '${JSON.stringify(data.alerts)}'  ${AM_API_URL}/alerts`,
+    )}" --request POST --data '${JSON.stringify(data.alerts)}' ${AM_API_URL}/alerts`,
   )
-  await postAlertmanagerAPI('/alerts', data.alerts)
+  return await postAlertmanagerAPI('alerts', data.alerts)
 }
 
 export { getAlertmanagerAPI, postAlertmanagerAPI, postTestAlert }
+
+const init = () => {
+  postTestAlert()
+}
+init()
