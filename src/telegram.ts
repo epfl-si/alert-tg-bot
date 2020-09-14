@@ -79,24 +79,25 @@ const manageBotEvents = async () => {
   // logger
   bot.on('text', (msg, props) => {
     let user = `@${msg.from.username}` || `${msg.from.first_name} ${msg.from.last_name}` || msg.from.first_name || msg.from.id
-    console.log(`${moment().format()}: ${user} send msg#${msg.message_id}: ${msg.text}`)
+    console.log(`${moment().format()}: ${user} send msg#${msg.message_id} (chat_id: '${msg.chat.id}'): ${msg.text}`)
   })
 
   bot.on(/^\/say (.+)$/, (msg, props) => {
-    console.log('say')
     const text = props.match[1]
+    console.log(`${moment().format()}: ${botName} reply to msg#${msg.message_id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text, { replyToMessage: msg.message_id })
   })
 
   bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
     const text =
       "This bot is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info."
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text)
   })
 
   bot.on(new RegExp(`^\/help(@${botName})?$`), (msg) => {
-    console.log('help')
     const text = '[WIP] /help list available commands.'
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text)
   })
 
@@ -107,6 +108,7 @@ const manageBotEvents = async () => {
     for (const [key, value] of Object.entries(amStatus.versionInfo)) {
       text += `\t  - ${key}: \`${value}\`\n`
     }
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
 
@@ -122,23 +124,28 @@ const manageBotEvents = async () => {
       // text += `\t  • URL: [generatorURL](${items.generatorURL})\n`
       text += `\t  • job: \`${items.labels.job}\`\n\n`
     })
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
 
   bot.on(new RegExp(`^\/receivers(@${botName})?$`), (msg) => {
     console.log('receivers')
     const text = '[WIP] /receivers will list the current receivers list.'
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text)
   })
   bot.on(new RegExp(`^\/silences(@${botName})?$`), (msg) => {
     console.log('silences')
     const text = '[WIP] /silences will list the current alerts list. /silence [id] to /silence/{silenceID}.'
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text)
   })
   // Inline button callback
   bot.on('callbackQuery', (msg) => {
+    console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
     // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
     bot.answerCallbackQuery(msg.id, { text: `Inline button callback: ${JSON.parse(msg.data).txt}`, showAlert: true })
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`)
     return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
   })
 
