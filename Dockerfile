@@ -4,6 +4,9 @@ FROM node:current-slim
 # Set the working directory. If it doesn't exists, it'll be created
 WORKDIR /app
 
+ARG NODE_ENV="production"
+ENV NODE_ENV="production"
+
 # Expose the port 3000
 EXPOSE 3000
 
