@@ -1,8 +1,8 @@
 import moment from 'moment'
 import telebot from 'telebot'
-import { getAlertmanagerAPI, postAlertmanagerAPI, postTestAlert } from './alertmanager'
+import { getAlertmanagerAPI, postAlertmanagerAPI } from './alertmanager'
 const debugMode = process.env.DEBUG || false
-
+console.log('debugMode', debugMode)
 let bot: telebot
 if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new telebot(process.env.TELEGRAM_BOT_TOKEN)
@@ -41,7 +41,7 @@ const formatAlertMessage = (data: any) => {
   msg.firingSince = humanizeDuration(msg.startsAt)
 
   switch (msg['status']) {
-    // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥
+    // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥🔇🤫
     case 'firing':
       msg.message += '🔥 Firing 🔥\n\n'
       break
@@ -102,7 +102,7 @@ const manageBotEvents = async () => {
   })
 
   bot.on(new RegExp(`^\/status(@${botName})?$`), async (msg) => {
-    const amStatus = await getAlertmanagerAPI('status')
+    const amStatus: any = await getAlertmanagerAPI('status')
     if (debugMode) console.debug(amStatus.versionInfo)
     let text = '**Alertmanager infos**\n'
     for (const [key, value] of Object.entries(amStatus.versionInfo)) {
@@ -113,8 +113,8 @@ const manageBotEvents = async () => {
   })
 
   bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
-    const alerts = await getAlertmanagerAPI('alerts')
-    if (debugMode) console.debug(alerts)
+    const alerts: any = await getAlertmanagerAPI('alerts')
+    if (debugMode) console.debug('alerts', alerts)
     let text = '**Alertmanager infos**\n\n'
     alerts.forEach((items: any) => {
       text += `‣ ${items.labels.alertname}: ${items.annotations.summary}\n`
@@ -128,24 +128,34 @@ const manageBotEvents = async () => {
     return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
 
+  bot.on(new RegExp(`^\/silences(@${botName})?$`), async (msg) => {
+    const silences: any = await getAlertmanagerAPI('silences')
+    if (debugMode) console.debug(silences)
+    let text = '🔇 **Alertmanager silences** 🤫\n\n'
+    silences.forEach((el: any) => {
+      for (const [key, value] of Object.entries(el)) {
+        text += `\t  - ${key}: \`${value}\`\n`
+      }
+    })
+    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
+    return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
+  })
+
   bot.on(new RegExp(`^\/receivers(@${botName})?$`), (msg) => {
     console.log('receivers')
     const text = '[WIP] /receivers will list the current receivers list.'
     console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     return bot.sendMessage(msg.chat.id, text)
   })
-  bot.on(new RegExp(`^\/silences(@${botName})?$`), (msg) => {
-    console.log('silences')
-    const text = '[WIP] /silences will list the current alerts list. /silence [id] to /silence/{silenceID}.'
-    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
-    return bot.sendMessage(msg.chat.id, text)
-  })
+
   // Inline button callback
   bot.on('callbackQuery', (msg) => {
     console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
     // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
     bot.answerCallbackQuery(msg.id, { text: `Inline button callback: ${JSON.parse(msg.data).txt}`, showAlert: true })
-    console.log(`${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`)
+    console.log(
+      `${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`,
+    )
     return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
   })
 

@@ -4,7 +4,7 @@ import bodyParser from 'body-parser'
 const app: express.Application = express()
 const port: number = 3000
 const jsonParser = bodyParser.json()
-const debugMode: string|boolean = process.env.DEBUG || false
+const debugMode: string | boolean = process.env.DEBUG || false
 
 // Handle bot events
 manageBotEvents()
