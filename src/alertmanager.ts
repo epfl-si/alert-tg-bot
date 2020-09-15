@@ -42,6 +42,17 @@ const postAlertmanagerAPI = async (endpoint: string, body: string) => {
     .catch(err => console.error(err))
 }
 
+const deleteAlertmanagerAPI = async (endpoint: string) => {
+  const options: any = { headers }
+  options.method = 'delete'
+  return await nodeFetch(`${AM_API_URL}/${endpoint}`, options)
+    .then((res) => {
+      console.log(`deleteAlertmanagerAPI status: ${res.status} (${res.statusText})`)
+      return res.ok
+    })
+    .catch(err => console.error(err))
+}
+
 // https://stackoverflow.com/a/31881889/960623
 const isJsonString = (text: any) => {
   if (typeof text !== 'string') {
@@ -145,7 +156,7 @@ const postTestSilence = async () => {
   return true // await postAlertmanagerAPI('silences', data.alerts)
 }
 
-export { getAlertmanagerAPI, postAlertmanagerAPI }
+export { getAlertmanagerAPI, postAlertmanagerAPI, deleteAlertmanagerAPI }
 
 const init = () => {
   postTestAlert()
