@@ -1,6 +1,9 @@
-import moment from 'moment'
+import moment, { now } from 'moment'
 import telebot from 'telebot'
 import { getAlertmanagerAPI, deleteAlertmanagerAPI } from './alertmanager'
+import javascriptTimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
+
 const debugMode = process.env.DEBUG || false
 console.log('debugMode', debugMode)
 let bot: telebot
@@ -23,13 +26,10 @@ const sendMessage = async (chatID: string, data: any) => {
   return await bot.sendMessage(chatID, message['message'], { replyMarkup, parseMode: 'markdown' })
 }
 
-const humanizeDuration = (eventDate: string) => {
-  const eventDuration = moment.duration(moment({}).diff(moment(eventDate)), 'seconds')
-  let eventDurationString = ''
-  if (eventDuration.days() > 0) eventDurationString += ` ${moment.duration(eventDuration.days(), 'days').humanize()}`
-  if (eventDuration.hours() > 0) eventDurationString += ` ${moment.duration(eventDuration.hours(), 'hours').humanize()}`
-  if (eventDuration.minutes() > 0) eventDurationString += ` ${moment.duration(eventDuration.minutes(), 'minutes').humanize()}`
-  return eventDurationString.trim()
+const humanizeDuration = (eventDate1: Date) => {
+  javascriptTimeAgo.addLocale(en)
+  const timeAgo = new javascriptTimeAgo('en-US')
+  return timeAgo.format(eventDate1.getTime(), 'time')
 }
 
 const formatAlertMessage = (data: any) => {
@@ -38,7 +38,7 @@ const formatAlertMessage = (data: any) => {
   msg.status = data.status
   msg.startsAt = data.alerts[0].startsAt
   msg.promLink = data.alerts[0].generatorURL
-  msg.firingSince = humanizeDuration(msg.startsAt)
+  msg.firingSince = humanizeDuration(new Date(msg.startsAt))
 
   switch (msg['status']) {
     // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥🔇🤫
@@ -147,15 +147,17 @@ const manageBotEvents = async () => {
         for (const matcher of el.matchers) {
           text += `\t\t  • \`${matcher.name}:${matcher.value}\`\n`
         }
-        text += ` → Expire: /${el.id.split('-')[0]}`
-        // text += `\t  - endsAt: \`${el.endsAt}\`` // TODO: ends in 5 hours
+        text += `\t  Silence will end in ${humanizeDuration(new Date(el.endsAt))}.\n\n`
         silenceButtons.push(bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, { callback: `silence_${el.id}` }))
       } else {
         console.log('el: ', el)
       }
     })
-
-    const replyMarkup = bot.inlineKeyboard([silenceButtons])
+    const organizeButtons: any[] = []
+    while (silenceButtons.length) {
+      organizeButtons.push(silenceButtons.splice(0, 2))
+    }
+    const replyMarkup = bot.inlineKeyboard(organizeButtons)
 
     console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
     if (activeSilencesNumber === 0) {
@@ -183,16 +185,15 @@ const manageBotEvents = async () => {
       bot.sendMessage(msg.message.chat.id, message)
       return bot.answerCallbackQuery(msg.id, { text: message, showAlert: true })
 
-    } else {
-      console.log(msg)
-      console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
-      // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
-      bot.answerCallbackQuery(msg.id, { text: `Inline button callback: ${JSON.parse(msg.data).txt}`, showAlert: true })
-      console.log(
-        `${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`
-      )
-      return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
     }
+    console.log(msg)
+    console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
+    // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
+    bot.answerCallbackQuery(msg.id, { text: `Inline button callback: ${JSON.parse(msg.data).txt}`, showAlert: true })
+    console.log(
+      `${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`,
+    )
+    return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
   })
 
   bot.start()
