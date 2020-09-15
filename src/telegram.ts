@@ -89,22 +89,33 @@ const manageBotEvents = async () => {
   })
 
   bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
-    const text =
-      "This bot is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info."
+    const pjson = require('../package.json')
+    const text = `This bot (@${botName}) is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info.
+Please run /help to see a list of available commands.
+
+\t  • version: \`${pjson.version}\`
+\t  • issues: [${pjson.bugs.url}](${pjson.bugs.url})
+\t  • readme: [${pjson.homepage}](${pjson.homepage})`
     console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
-    return bot.sendMessage(msg.chat.id, text)
+    return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
 
   bot.on(new RegExp(`^\/help(@${botName})?$`), (msg) => {
-    const text = '[WIP] /help list available commands.'
+    const text = `**${botName}'s commands**:
+\t• /start: welcome message, bot information
+\t• /help: this help
+\t• /status: output the status of the alertmanager
+\t• /alerts: lists the current alerts
+\t• /silences: lists the current silences
+\t• /receivers: lists the available receivers`
     console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
-    return bot.sendMessage(msg.chat.id, text)
+    return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
   })
 
   bot.on(new RegExp(`^\/status(@${botName})?$`), async (msg) => {
     const amStatus: any = await getAlertmanagerAPI('status')
     if (debugMode) console.debug(amStatus.versionInfo)
-    let text = '**Alertmanager infos**\n'
+    let text = '**Alertmanager status**:\n'
     for (const [key, value] of Object.entries(amStatus.versionInfo)) {
       text += `\t  - ${key}: \`${value}\`\n`
     }
@@ -115,7 +126,7 @@ const manageBotEvents = async () => {
   bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
     const alerts: any = await getAlertmanagerAPI('alerts')
     if (debugMode) console.debug('alerts', alerts)
-    let text = '**Alertmanager infos**\n\n'
+    let text = '**Alertmanager\'s alerts**:\n\n'
     alerts.forEach((items: any) => {
       text += `‣ ${items.labels.alertname}: ${items.annotations.summary}\n`
       text += `\t  • description: \`${items.annotations.description}\`\n`
@@ -132,7 +143,7 @@ const manageBotEvents = async () => {
     const silences: any = await getAlertmanagerAPI('silences')
     const silenceButtons: any[] = []
     if (debugMode) console.debug(silences)
-    let text = '🔇 **Alertmanager silences** 🤫\n\n'
+    let text = '🔇 **Alertmanager\'s silences**🤫:\n\n'
     let activeSilencesNumber: number = 0
     silences.forEach((el: any) => {
       if (el.status.state === 'active') {
@@ -184,7 +195,6 @@ const manageBotEvents = async () => {
       const message: string = (amSilence) ? `Silence ${silenceId} expired` : `Error while expiring silence ${silenceId}`
       bot.sendMessage(msg.message.chat.id, message)
       return bot.answerCallbackQuery(msg.id, { text: message, showAlert: true })
-
     }
     console.log(msg)
     console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
