@@ -130,15 +130,30 @@ const manageBotEvents = async () => {
 
   bot.on(new RegExp(`^\/silences(@${botName})?$`), async (msg) => {
     const silences: any = await getAlertmanagerAPI('silences')
+    const silenceButtons: any[] = []
     if (debugMode) console.debug(silences)
     let text = '🔇 **Alertmanager silences** 🤫\n\n'
     silences.forEach((el: any) => {
-      for (const [key, value] of Object.entries(el)) {
-        text += `\t  - ${key}: \`${value}\`\n`
+      if (el.status.state == 'active') { // do not list expired silences
+        console.log(el.matchers)
+        text += `**Silence id: ${el.id}**\n`
+        text += `\t  - comment: \`${el.comment}\`\n`
+        text += `\t  - createdBy: \`${el.createdBy}\`\n`
+        text += `\t  - endsAt: \`${el.endsAt}\`\n`
+        text += `\t  - matchers: \n`
+        for (const matcher of el.matchers) {
+          text += `\t\t  • \`${matcher.name}:${matcher.value}\`\n`
+        }
+        text += ` → Expire: /${el.id.split('-')[0]}`
+        // text += `\t  - endsAt: \`${el.endsAt}\`` // TODO: ends in 5 hours
+        silenceButtons.push(bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, {callback: `silence_${el.id}`}))
       }
     })
+    
+    let replyMarkup = bot.inlineKeyboard([silenceButtons]);
+
     console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
-    return bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
+    return bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
   })
 
   bot.on(new RegExp(`^\/receivers(@${botName})?$`), (msg) => {
@@ -149,14 +164,37 @@ const manageBotEvents = async () => {
   })
 
   // Inline button callback
-  bot.on('callbackQuery', (msg) => {
-    console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
-    // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
-    bot.answerCallbackQuery(msg.id, { text: `Inline button callback: ${JSON.parse(msg.data).txt}`, showAlert: true })
-    console.log(
-      `${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`,
-    )
-    return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
+  bot.on('callbackQuery', async (msg) => {
+    const user = `@${msg.from.username}` || `${msg.from.first_name} ${msg.from.last_name}` || msg.from.first_name || msg.from.id
+    if (msg.data.startsWith('silence_')) {
+      // we got a silence to expire
+      let silenceId = msg.data.split('silence_')[1]
+      const data: any = {
+          id: silenceId,
+          comment: `Silence expired from ${botName}`,
+          createdBy: user,
+          status: {
+            state: 'expired',
+          }
+        }
+        console.log(data)
+      // POST request to expire silence
+      const amSilence: any = await postAlertmanagerAPI('silences', data)
+      console.log(amSilence)
+      
+      return bot.answerCallbackQuery(msg.id, { text: `Silence ${silenceId} expired`, showAlert: true })
+
+    } else {
+      console.log(msg)
+      console.log(`${moment().format()}: ${botName} answerCallbackQuery ${msg.id}.`)
+      // https://github.com/mullwar/telebot/blob/master/examples/keyboard.js
+      bot.answerCallbackQuery(msg.id, { text: `Inline button callback: ${JSON.parse(msg.data).txt}`, showAlert: true })
+      console.log(
+        `${moment().format()}: ${botName} sendMessage to ${msg.message.chat.id}: Inline button callback: ${JSON.parse(msg.data).txt}`,
+      )
+      return bot.sendMessage(msg.message.chat.id, `Inline button callback: ${JSON.parse(msg.data).txt}`)
+    }
+
   })
 
   bot.start()
