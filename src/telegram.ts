@@ -180,11 +180,16 @@ export class Telegram {
       return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
 
-    this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), (msg) => {
-      console.log('receivers')
-      const text = '[WIP] /receivers will list the current receivers list.'
+    this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) =>  {
+      const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
+      console.log(receivers)
+      if (debugMode) console.debug('receivers', receivers)
+      let text = '**Alertmanager\'s receivers**:\n\n'
+      receivers.forEach((items: any) => {
+        text += `‣ ${items.name}\n`
+      })
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
-      return this.bot.sendMessage(msg.chat.id, text)
+      return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
 
     // Inline button callback
