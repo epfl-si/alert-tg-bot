@@ -67,9 +67,7 @@ export class AlertManager {
 
   public filterWithFingerprint = async (fingerprint: string) => {
     const alertLists = await this.getAlertmanagerAPI('alerts')
-    console.dir(alertLists.data)
     const alertListsMatched = alertLists.filter((el: { fingerprint: any }) =>  el.fingerprint === fingerprint)
-    console.dir(alertListsMatched)
     return alertListsMatched
   }
 

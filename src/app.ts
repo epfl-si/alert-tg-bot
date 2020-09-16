@@ -23,7 +23,7 @@ app.post('/*', jsonParser, async (req: any, res: any) => {
   if (debugMode) console.dir(req.body, { depth: null })
   if (validateGroupOrChatID(chatOrGroupID)) {
     try {
-      const response = await telegram.sendMessage(chatOrGroupID, req.body)
+      const response = await telegram.sendAlertMessage(chatOrGroupID, req.body)
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
     } catch (e) {
       console.error(e)

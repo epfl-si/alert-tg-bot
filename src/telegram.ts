@@ -58,11 +58,9 @@ export class Telegram {
     return msg
   }
 
-  public sendMessage = async (chatID: string, data: any) => {
+  public sendAlertMessage = async (chatID: string, data: any) => {
     const message = this.formatAlertMessage(data)
     console.log(`${moment().format()}: send message to ${chatID}\n${message['message']}\n`)
-    console.log('POSTED DATA:', data)
-    console.log('POSTED DATA:', data.alerts[0].fingerprint)
     const replyMarkup = this.bot.inlineKeyboard([
       [
         // FIXME: link should list all label to point to this specific alert
@@ -90,32 +88,25 @@ export class Telegram {
       console.log(`${moment().format()}: ${user} send msg#${msg.message_id} (chat_id: '${msg.chat.id}'): ${msg.text}`)
     })
 
-    this.bot.on(/^\/say (.+)$/, (msg, props) => {
-      const text = props.match[1]
-      console.log(`${moment().format()}: ${botName} reply to msg#${msg.message_id}: ${text}`)
-      return this.bot.sendMessage(msg.chat.id, text, { replyToMessage: msg.message_id })
-    })
-
     this.bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
       const pjson = require('../package.json')
       const text = `This bot (@${botName}) is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info.
-  Please run /help to see a list of available commands.
-
-  \t  • version: \`${pjson.version}\`
-  \t  • issues: [${pjson.bugs.url}](${pjson.bugs.url})
-  \t  • readme: [${pjson.homepage}](${pjson.homepage})`
+Please run /help to see a list of available commands.
+  \t  · version: \`${pjson.version}\`
+  \t  · issues: [${pjson.bugs.url}](${pjson.bugs.url})
+  \t  · readme: [${pjson.homepage}](${pjson.homepage})`
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
 
     this.bot.on(new RegExp(`^\/help(@${botName})?$`), (msg) => {
       const text = `**${botName}'s commands**:
-  \t• /start: welcome message, bot information
-  \t• /help: this help
-  \t• /status: output the status of the alertmanager
-  \t• /alerts: lists the current alerts
-  \t• /silences: lists the current silences
-  \t• /receivers: lists the available receivers`
+  \t  · /start: welcome message, bot information
+  \t  · /help: this help
+  \t  · /status: output the status of the alertmanager
+  \t  · /alerts: lists the current alerts
+  \t  · /silences: lists the current silences
+  \t  · /receivers: lists the available receivers`
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
@@ -137,11 +128,11 @@ export class Telegram {
       let text = '**Alertmanager\'s alerts**:\n\n'
       alerts.forEach((items: any) => {
         text += `‣ ${items.labels.alertname}: ${items.annotations.summary}\n`
-        text += `\t  • description: \`${items.annotations.description}\`\n`
-        text += `\t  • starts: \`${items.startsAt}\`\n`
+        text += `\t  · description: \`${items.annotations.description}\`\n`
+        text += `\t  · starts: \`${items.startsAt}\`\n`
         // It seems that tg does not accept URL with prom query in them :/
         // text += `\t  • URL: [generatorURL](${items.generatorURL})\n`
-        text += `\t  • job: \`${items.labels.job}\`\n\n`
+        text += `\t  · job: \`${items.labels.job}\`\n\n`
       })
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
@@ -158,13 +149,13 @@ export class Telegram {
           activeSilencesNumber += 1
           // do not list expired silences
           console.log(el.matchers)
-          text += `**Silence id: ${el.id}**\n`
-          text += `\t  - comment: \`${el.comment}\`\n`
-          text += `\t  - createdBy: \`${el.createdBy}\`\n`
-          text += `\t  - endsAt: \`${el.endsAt}\`\n`
-          text += '\t  - matchers: \n'
+          text += `‣ **Silence id**: \`${el.id}\`\n`
+          text += `\t  · comment: \`${el.comment}\`\n`
+          text += `\t  · createdBy: \`${el.createdBy}\`\n`
+          text += `\t  · endsAt: \`${el.endsAt}\`\n`
+          text += '\t  · matchers: \n'
           for (const matcher of el.matchers) {
-            text += `\t\t  • \`${matcher.name}:${matcher.value}\`\n`
+            text += `\t\t\t\t  · ${matcher.name}: \`${matcher.value}\`\n`
           }
           text += `\t  Silence will end in ${humanizeDuration(new Date(el.endsAt))}.\n\n`
           silenceButtons.push(this.bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, { callback: `silence_${el.id}` }))
@@ -175,7 +166,7 @@ export class Telegram {
 
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
       if (activeSilencesNumber === 0) {
-        text = 'No active silence !'
+        text = 'No silences found. Use /alerts to see active alerts.'
       }
       return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
@@ -184,9 +175,9 @@ export class Telegram {
       const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
       console.log(receivers)
       if (debugMode) console.debug('receivers', receivers)
-      let text = '**Alertmanager\'s receivers**:\n\n'
+      let text = '**Alertmanager\'s receivers**:\n'
       receivers.forEach((items: any) => {
-        text += `‣ ${items.name}\n`
+        text += `\t  · ${items.name}\n`
       })
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
@@ -202,7 +193,7 @@ export class Telegram {
         const silenceId: any = msg.data.split('silence_')[1]
         const amSilence: any = await alertManager.deleteAlertmanagerAPI(`silence/${silenceId}`)
         console.log(amSilence)
-        let message: string = (amSilence) ? `Silence ${silenceId} expired.` : `Error while expiring silence ${silenceId}.`
+        let message: string = (amSilence) ? `Silence \`${silenceId}\` is now expired.` : `Error while expiring silence ${silenceId}.`
         message += '\nUse /silences to list all active silences.'
         this.bot.sendMessage(msg.message.chat.id, message)
         return this.bot.answerCallbackQuery(msg.id, { text: message, showAlert: false })
@@ -217,6 +208,7 @@ export class Telegram {
 
         // Build the exact matchers list base on alert's labels
         const myAlert = await alertManager.filterWithFingerprint(fingerprint)
+        console.log(myAlert)
         const matchers = []
         for (const [key, value] of Object.entries(myAlert[0].labels)) {
           const tmp: { name: string, value: any, isRegex: boolean } = {
@@ -236,8 +228,8 @@ export class Telegram {
         }
         // FIXME: try/catch or check the returned value
         const silencedAlert = await alertManager.postAlertmanagerAPI('silences', silencedAlertBody)
-        this.bot.answerCallbackQuery(msg.id, { text: 'silence callback', showAlert: false })
-        return this.bot.sendMessage(msg.message.chat.id, 'silence callback')
+        this.bot.answerCallbackQuery(msg.id, { text: `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`, showAlert: false })
+        return this.bot.sendMessage(msg.message.chat.id, `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`, { parseMode: 'markdown' })
       }
 
     })
