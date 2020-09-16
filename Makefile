@@ -69,6 +69,7 @@ docker-exec:
 .PHONY: http-post
 ## Issue a POST request to the express app based on content of alert.json
 http-post:
+	sleep 2
 	http POST http://localhost:3000/${TG_GROUP_ID} < alert.json
 
 .PHONY: docker-tag
