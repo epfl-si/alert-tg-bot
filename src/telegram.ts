@@ -124,18 +124,23 @@ Please run /help to see a list of available commands.
 
     this.bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
+      const silenceButtons: any[] = []
       if (debugMode) console.debug('alerts', alerts)
       let text = '**Alertmanager\'s alerts**:\n\n'
       alerts.forEach((items: any) => {
-        text += `‣ ${items.labels.alertname}: ${items.annotations.summary}\n`
+        text += `‣ Alert id: ${items.fingerprint}\n`
+        text += `\t  · alertname: \`${items.labels.alertname}\`\n`
+        text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
         text += `\t  · starts: \`${items.startsAt}\`\n`
         // It seems that tg does not accept URL with prom query in them :/
         // text += `\t  • URL: [generatorURL](${items.generatorURL})\n`
         text += `\t  · job: \`${items.labels.job}\`\n\n`
+        silenceButtons.push(this.bot.inlineButton(`Silence: ${items.fingerprint}`, { callback: `silence_${items.fingerprint}` }))
       })
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
-      return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
+      const replyMarkup = this.bot.inlineKeyboard(spliceArray(silenceButtons))
+      return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
 
     this.bot.on(new RegExp(`^\/silences(@${botName})?$`), async (msg) => {
@@ -158,7 +163,7 @@ Please run /help to see a list of available commands.
             text += `\t\t\t\t  · ${matcher.name}: \`${matcher.value}\`\n`
           }
           text += `\t  Silence will end in ${humanizeDuration(new Date(el.endsAt))}.\n\n`
-          silenceButtons.push(this.bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, { callback: `silence_${el.id}` }))
+          silenceButtons.push(this.bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, { callback: `expire_${el.id}` }))
         }
       })
 
@@ -187,10 +192,30 @@ Please run /help to see a list of available commands.
     this.bot.on('callbackQuery', async (msg) => {
       const user = `@${msg.from.username}` || `${msg.from.first_name} ${msg.from.last_name}` || msg.from.first_name || msg.from.id
 
-      // Callback for the /silences command
+      // Callback for the /alerts command
       if (msg.data.startsWith('silence_')) {
+        // TODO: display duration button and use the same "alert_" callback to d
         // we got a silence to expire
-        const silenceId: any = msg.data.split('silence_')[1]
+        const fingerprint: any = msg.data.split('silence_')[1]
+        const replyMarkup = this.bot.inlineKeyboard([
+          [
+            this.bot.inlineButton('Silence 1h', { callback: `alert_1_${fingerprint}` }),
+            this.bot.inlineButton('Silence 4h', { callback: `alert_4_${fingerprint}` }),
+            this.bot.inlineButton('Silence 8h', { callback: `alert_8_${fingerprint}` }),
+            this.bot.inlineButton('Silence 24h', { callback: `alert_24_${fingerprint}` }),
+          ],
+        ])
+        this.bot.answerCallbackQuery(msg.id, { text: "Return for callback 'silence_'", showAlert: false })
+        return await this.bot.sendMessage(
+          msg.message.chat.id, `Please choose the silence duration for the alert ${fingerprint}`,
+          { replyMarkup, parseMode: 'markdown' },
+        )
+      }
+
+      // Callback for the /silences command
+      if (msg.data.startsWith('expire_')) {
+        // we got a silence to expire
+        const silenceId: any = msg.data.split('expire_')[1]
         const amSilence: any = await alertManager.deleteAlertmanagerAPI(`silence/${silenceId}`)
         console.log(amSilence)
         let message: string = (amSilence) ? `Silence \`${silenceId}\` is now expired.` : `Error while expiring silence ${silenceId}.`
