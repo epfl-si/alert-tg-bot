@@ -126,9 +126,11 @@ Please run /help to see a list of available commands.
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
       const silenceButtons: any[] = []
       if (debugMode) console.debug('alerts', alerts)
-      let text = '**Alertmanager\'s alerts**:\n\n'
+      let text = '🔔 **Alertmanager\'s alerts**:\n\n'
+      let activeAlertsNumber: number = 0
       alerts.forEach((items: any) => {
-        text += `‣ Alert id: ${items.fingerprint}\n`
+        activeAlertsNumber += 1
+        text += `‣ **Alert id**: \`${items.fingerprint}\` 🔔\n`
         text += `\t  · alertname: \`${items.labels.alertname}\`\n`
         text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
@@ -139,6 +141,9 @@ Please run /help to see a list of available commands.
         silenceButtons.push(this.bot.inlineButton(`Silence: ${items.fingerprint}`, { callback: `silence_${items.fingerprint}` }))
       })
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
+      if (activeAlertsNumber === 0) {
+        text = 'No alerts found. Use /silences to see active silences.'
+      }
       const replyMarkup = this.bot.inlineKeyboard(spliceArray(silenceButtons))
       return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
@@ -147,14 +152,14 @@ Please run /help to see a list of available commands.
       const silences: any = await alertManager.getAlertmanagerAPI('silences')
       const silenceButtons: any[] = []
       if (debugMode) console.debug(silences)
-      let text = '🔇 **Alertmanager\'s silences**🤫:\n\n'
+      let text = '🔕 **Alertmanager\'s silences**:\n\n'
       let activeSilencesNumber: number = 0
       silences.forEach((el: any) => {
         if (el.status.state === 'active') {
           activeSilencesNumber += 1
           // do not list expired silences
           console.log(el.matchers)
-          text += `‣ **Silence id**: \`${el.id}\`\n`
+          text += `‣ **Silence id**: \`${el.id}\` 🔕\n`
           text += `\t  · comment: \`${el.comment}\`\n`
           text += `\t  · createdBy: \`${el.createdBy}\`\n`
           text += `\t  · endsAt: \`${el.endsAt}\`\n`
@@ -166,9 +171,7 @@ Please run /help to see a list of available commands.
           silenceButtons.push(this.bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, { callback: `expire_${el.id}` }))
         }
       })
-
       const replyMarkup = this.bot.inlineKeyboard(spliceArray(silenceButtons))
-
       console.log(`${moment().format()}: ${botName} sendMessage to ${msg.chat.id}: ${text}`)
       if (activeSilencesNumber === 0) {
         text = 'No silences found. Use /alerts to see active alerts.'
