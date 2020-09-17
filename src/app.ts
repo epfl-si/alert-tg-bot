@@ -2,13 +2,12 @@ import express from 'express'
 import { Telegram } from './telegram'
 import { validateGroupOrChatID } from './utils'
 import bodyParser from 'body-parser'
-import { Logger } from './logger'
+import { logger } from './logger'
 
 const app: express.Application = express()
 const port: number = 3000
 const jsonParser = bodyParser.json()
 
-const logger = new Logger()
 app.use(logger.expressAppLogger())
 app.use(logger.expressLogError())
 
