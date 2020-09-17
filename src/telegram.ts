@@ -181,7 +181,6 @@ Please run /help to see a list of available commands.
 
     this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) =>  {
       const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
-      console.log(receivers)
       if (debugMode) console.debug('receivers', receivers)
       let text = '**Alertmanager\'s receivers**:\n'
       receivers.forEach((items: any) => {
