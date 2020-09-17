@@ -23,19 +23,16 @@ const logger: winston.Logger = winston.createLogger({
   transports: [new winston.transports.Console(options.console)],
 })
 
+const delegate = <T extends Function>(that: winston.Logger, method: T): T => {
+  return method.bind(that)
+}
+
 class Logger {
 
-  public error(param: any) {
-    logger.error(param)
-  }
-
-  public info(param: any) {
-    logger.info(param)
-  }
-
-  public debug(param: any) {
-    logger.debug(param)
-  }
+  // delegate error, info and debug to logger
+  public error = delegate(logger, logger.error)
+  public info = delegate(logger, logger.info)
+  public debug = delegate(logger, logger.debug)
 
   public expressAppLogger = () => {
     return (req: any, res: any, next: any) => {
