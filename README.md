@@ -26,7 +26,7 @@ There is a few environment variables that have to be set in order to run the
 
 | env                  | description                                                               |
 | -------------------- | ------------------------------------------------------------------------- |
-| `DEBUG`              | Activate the debug mode                                                   |
+| `LOG_LEVEL`          | Change the log level ['debug', 'info', 'error']                           |
 | `TELEGRAM_BOT_TOKEN` | The TOKEN of your bot                                                     |
 | `AM_URL`             | URL of the alertmanager without trailing /, e.g. <https://am.idev-fsd.ml> |
 | `AM_BASIC_AUTH_USER` | This assume that your alertmanager has a basic authentification system    |
@@ -38,7 +38,7 @@ command simmilar to:
 ```
 docker run -d --rm                                   \
            --name alert-tg-bot                       \
-           -e DEBUG=false                            \
+           -e LOG_LEVEL=error                        \
            -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
            -e AM_URL=$AM_URL                         \
            -e AM_BASIC_AUTH_USER=$AM_BASIC_AUTH_USER \

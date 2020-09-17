@@ -48,7 +48,7 @@ docker-build:
 ## Run the Docker container with relevant environment variables
 docker-run:
 	docker run -d --rm \
-		-e DEBUG=true \
+		-e LOG_LEVEL=debug \
 		-e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
 		-e AM_BASIC_AUTH_USER=${AM_BASIC_AUTH_USER} \
 		-e AM_BASIC_AUTH_PASS=${AM_BASIC_AUTH_PASS} \

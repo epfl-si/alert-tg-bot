@@ -7,8 +7,7 @@ import {
   validateGroupOrChatID,
 } from './utils'
 
-const debugMode = process.env.DEBUG || false
-console.log('debugMode', debugMode)
+import { logger } from './logger'
 
 export class Telegram {
 
@@ -18,7 +17,7 @@ export class Telegram {
     if (process.env.TELEGRAM_BOT_TOKEN) {
       this.bot = new telebot(process.env.TELEGRAM_BOT_TOKEN)
     } else {
-      console.error('Please define the TELEGRAM_BOT_TOKEN environment variable')
+      logger.error('Please define the TELEGRAM_BOT_TOKEN environment variable')
       process.exit(1)
     }
   }
@@ -113,7 +112,7 @@ Please run /help to see a list of available commands.
 
     this.bot.on(new RegExp(`^\/status(@${botName})?$`), async (msg) => {
       const amStatus: any = await alertManager.getAlertmanagerAPI('status')
-      if (debugMode) console.debug(amStatus.versionInfo)
+      logger.debug(amStatus.versionInfo)
       let text = '**Alertmanager status**:\n'
       for (const [key, value] of Object.entries(amStatus.versionInfo)) {
         text += `\t  - ${key}: \`${value}\`\n`
@@ -125,7 +124,7 @@ Please run /help to see a list of available commands.
     this.bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
       const silenceButtons: any[] = []
-      if (debugMode) console.debug('alerts', alerts)
+      logger.debug(`alerts: ${alerts}`)
       let text = '🔔 **Alertmanager\'s alerts**:\n\n'
       let activeAlertsNumber: number = 0
       alerts.forEach((items: any) => {
@@ -151,7 +150,7 @@ Please run /help to see a list of available commands.
     this.bot.on(new RegExp(`^\/silences(@${botName})?$`), async (msg) => {
       const silences: any = await alertManager.getAlertmanagerAPI('silences')
       const silenceButtons: any[] = []
-      if (debugMode) console.debug(silences)
+      logger.debug(silences)
       let text = '🔕 **Alertmanager\'s silences**:\n\n'
       let activeSilencesNumber: number = 0
       silences.forEach((el: any) => {
@@ -181,7 +180,7 @@ Please run /help to see a list of available commands.
 
     this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) =>  {
       const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
-      if (debugMode) console.debug('receivers', receivers)
+      logger.debug(`receivers: ${receivers}`)
       let text = '**Alertmanager\'s receivers**:\n'
       receivers.forEach((items: any) => {
         text += `\t  · ${items.name}\n`
