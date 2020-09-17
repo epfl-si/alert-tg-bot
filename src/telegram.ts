@@ -229,6 +229,11 @@ Please run /help to see a list of available commands.
 
       // Callback for the /silences command
       if (msg.data.startsWith('alert_')) {
+
+        // TODO: it would be nice to update the silence instead of always create
+        //       a new one. It would be easy if we add the silence's id to the
+        //       POST body.
+
         // Get alert param (duration and fingerprint)
         const result = msg.data.match(new RegExp(/^alert_(\d+)_(\w+)/))
         const duration: number = result[1]
