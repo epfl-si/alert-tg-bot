@@ -37,11 +37,12 @@ class Logger {
   public expressAppLogger = () => {
     return (req: any, res: any, next: any) => {
       logger.info(
-        `${req.ip} ${req.method} ${req.url} (user-agent: ${req.get('user-agent')})`,
+        `Express | ip: ${req.ip} method: ${req.method} url: ${req.url} (user-agent: ${req.get('user-agent')})`,
       )
       logger.debug(
         // see https://expressjs.com/en/api.html#req
-        `${req.ip} ${req.method} ${req.url} ${req.path} ${req.originalUrl} ${req.baseUrl} (user-agent: ${req.get('user-agent')})\n${req.body}`,
+        // https://stackoverflow.com/questions/56090851/winston-logging-object
+        `Express | ip: ${req.ip} method: ${req.method} url: ${req.url} ${req.path} ${req.originalUrl} ${req.baseUrl} (user-agent: ${req.get('user-agent')})`,
       )
       next()
     }
@@ -49,7 +50,7 @@ class Logger {
 
   public expressLogError = () => {
     return (err: string, req: any, res: any, next: any) => {
-      logger.error(err)
+      logger.error(`Express: ${err}`)
       next()
     }
   }

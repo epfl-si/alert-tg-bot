@@ -8,8 +8,7 @@ const app: express.Application = express()
 const port: number = 3000
 const jsonParser = bodyParser.json()
 
-app.use(logger.expressAppLogger())
-app.use(logger.expressLogError())
+app.use(logger.expressAppLogger(), logger.expressLogError())
 
 const telegram = new Telegram()
 
