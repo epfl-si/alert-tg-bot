@@ -26,6 +26,14 @@ export class AlertManager {
     this.AM_API_URL = `${this.AM_URL}/api/v2`
   }
 
+  public getAlertmanagerURL = (): string => {
+    return this.AM_URL
+  }
+
+  public getAlertmanagerAPIURL = (): string => {
+    return this.AM_API_URL
+  }
+
   public getAlertmanagerAPI = async (endpoint: string) => {
     const options: any = { headers: this.headers }
     logger.info(`getAlertmanagerAPI fetch ${this.AM_API_URL}/${endpoint}`)
