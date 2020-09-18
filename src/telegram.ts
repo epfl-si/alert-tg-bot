@@ -23,27 +23,19 @@ export class Telegram {
 
   private alertLink = (data: any) => {
     const alertLabels = data.alerts[0].labels
-    console.log(alertLabels)
+    logger.debug(alertLabels)
     const am = new AlertManager()
     const alertURL: URL = new URL(am.getAlertmanagerURL())
     alertURL.searchParams.append('silenced', 'false')
     alertURL.searchParams.append('inhibited', 'false')
     alertURL.searchParams.append('active', 'true')
-    let filter: string = '{'
-    let index: number = 0
+    let filter: string = ''
     for (const [key, value] of Object.entries(alertLabels)) {
-      console.log('key', key)
-      console.log('value', value)
-      filter += `${key}="${value}"`
-      if (index !== Object.keys(alertLabels).length - 1) {
-        filter += ','
-      }
-      index += 1
+      filter += `${key}="${value}",`
     }
-    filter += '}'
+    filter = `{${filter.slice(0, -1)}}`
     alertURL.searchParams.append('filter', filter)
-    console.log(alertURL)
-
+    logger.debug(alertURL)
     return `${alertURL.origin}/#/alerts${alertURL.search}`
   }
 
