@@ -6,6 +6,7 @@ import {
   spliceArray} from './utils'
 
 import { logger } from './logger'
+import { URL, URLSearchParams } from 'url'
 
 export class Telegram {
 
@@ -20,6 +21,22 @@ export class Telegram {
     }
   }
 
+  private alertLink = (data: any) => {
+    const alertLabels = data.alerts[0].labels
+    console.log(alertLabels)
+    const am = new AlertManager()
+    let alertURL = new URL(am.getAlertmanagerURL())
+    alertURL.searchParams.append('silenced', 'false')
+    alertURL.searchParams.append('inhibited', 'false')
+    alertURL.searchParams.append('active', 'true')
+    // for (const el of alertLabels) {
+    //   console.log("toto", el)
+    // }
+    alertURL.searchParams.append('filter', JSON.stringify(alertLabels))
+    console.log(alertURL)
+    return 'https://am-tst.idev-fsd.ml/'
+  }
+
   private formatAlertMessage = (data: any) => {
     const msg: any = {}
     msg.message = ''
@@ -27,6 +44,7 @@ export class Telegram {
     msg.startsAt = data.alerts[0].startsAt
     msg.promLink = data.alerts[0].generatorURL
     msg.firingSince = humanizeDuration(new Date(msg.startsAt))
+    msg.alertLink = this.alertLink(data) // 'https://www.epfl.ch'
 
     switch (msg['status']) {
       // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥🔇🤫
@@ -61,7 +79,7 @@ export class Telegram {
     const replyMarkup = this.bot.inlineKeyboard([
       [
         // FIXME: link should list all label to point to this specific alert
-        this.bot.inlineButton('Link to this alert', { url: 'https://am-tst.idev-fsd.ml/#/alerts?silenced=false&inhibited=false&active=true&filter=%7Bslug%3D%22canari%22%7D' }),
+        this.bot.inlineButton('Link to this alert', { url: message['alertLink'] }),
         this.bot.inlineButton('Link to prometheus query', { url: message['promLink'] }),
       ],
       [
