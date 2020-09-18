@@ -1,23 +1,23 @@
 import winston from 'winston'
-const { combine, timestamp, printf } = winston.format
+const { colorize, combine, timestamp, printf } = winston.format
 
 const options: any = {
   console: {
-    level: process.env.LOG_LEVEL || 'error', // Options: 'debug', 'info', 'error'
     handleExceptions: true,
     json: false,
     colorize: true,
   },
 }
 
-const logFormat = printf(({ level, message, timestamp }) => {
+const logFormat = printf(({ timestamp, level, message }) => {
   return `${timestamp} ${level}: ${message}`
 })
 
 const logger: winston.Logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'error', // Options: 'debug', 'info', 'error'
   format: combine(
-    winston.format.colorize(),
     timestamp(),
+    colorize(),
     logFormat,
   ),
   transports: [new winston.transports.Console(options.console)],

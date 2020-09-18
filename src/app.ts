@@ -28,7 +28,7 @@ app.post('/*', jsonParser, async (req: any, res: any) => {
       const response = await telegram.sendAlertMessage(chatOrGroupID, req.body)
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
     } catch (e) {
-      logger.error(e)
+      logger.error(JSON.stringify(e))
       res.send(`Error: ${e.description}`)
     }
   } else {
@@ -40,5 +40,5 @@ app.post('/*', jsonParser, async (req: any, res: any) => {
 // Launch express app on specified port
 app.listen(port, () => {
   const pjson = require('../package.json')
-  logger.info(`Example app (version: ${pjson.version}) listening at http://localhost:${port}`)
+  logger.info(`${pjson.name} (version: ${pjson.version}) listening at http://localhost:${port}`)
 })
