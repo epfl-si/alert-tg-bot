@@ -21,16 +21,14 @@ export class Telegram {
     }
   }
 
-  private alertLink = (data: any) => {
-    const alertLabels = data.alerts[0].labels
-    logger.debug(alertLabels)
+  private alertLink = (labelsOrMatchers: any) => {
     const am = new AlertManager()
     const alertURL: URL = new URL(am.getAlertmanagerURL())
     alertURL.searchParams.append('silenced', 'false')
     alertURL.searchParams.append('inhibited', 'false')
     alertURL.searchParams.append('active', 'true')
     let filter: string = ''
-    for (const [key, value] of Object.entries(alertLabels)) {
+    for (const [key, value] of Object.entries(labelsOrMatchers)) {
       filter += `${key}="${value}",`
     }
     filter = `{${filter.slice(0, -1)}}`
@@ -46,7 +44,7 @@ export class Telegram {
     msg.startsAt = data.alerts[0].startsAt
     msg.promLink = data.alerts[0].generatorURL
     msg.firingSince = humanizeDuration(new Date(msg.startsAt))
-    msg.alertLink = this.alertLink(data) // 'https://www.epfl.ch'
+    msg.alertLink = this.alertLink(data.alerts[0].labels)
 
     switch (msg['status']) {
       // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥🔇🤫
@@ -67,7 +65,7 @@ export class Telegram {
       msg.message += `Title: _${data.commonAnnotations.summary}_\n\n`
       msg.message += `Description: \`${data.commonAnnotations.description}\`\n\n`
       msg.message += `Firing since ${msg.firingSince}. \n\n`
-      msg.message += `📣 [view on prometheus](${msg.promLink}) | [to the alertmanager](${data.externalURL})\n`
+      msg.message += `📣 [to the alertmanager](${msg.alertLink}) | [view on prometheus](${msg.promLink}) \n`
     } else {
       logger.error(`Data sent by alertmanager are missing some keys: ${data}`)
       throw new Error(`Data sent by alertmanager are missing some keys: ${data}`)
@@ -153,9 +151,9 @@ Please run /help to see a list of available commands.
         text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
         text += `\t  · starts: \`${items.startsAt}\`\n`
-        // It seems that tg does not accept URL with prom query in them :/
-        // text += `\t  • URL: [generatorURL](${items.generatorURL})\n`
-        text += `\t  · job: \`${items.labels.job}\`\n\n`
+        text += `\t  · job: \`${items.labels.job}\`\n`
+        const alertLink = this.alertLink(items.labels)
+        text += `\t  · [view alert on alertmanager](${alertLink}) ⬈\n\n`
         silenceButtons.push(this.bot.inlineButton(`Silence: ${items.fingerprint}`, { callback: `silence_${items.fingerprint}` }))
       })
       if (activeAlertsNumber === 0) {
@@ -172,20 +170,24 @@ Please run /help to see a list of available commands.
       logger.debug(silences)
       let text = '🔕 **Alertmanager\'s silences**:\n\n'
       let activeSilencesNumber: number = 0
-      silences.forEach((el: any) => {
-        if (el.status.state === 'active') {
+      silences.forEach((items: any) => {
+        if (items.status.state === 'active') {
+          let matchersForLink: any = {}
           activeSilencesNumber += 1
           // do not list expired silences
-          text += `‣ **Silence id**: \`${el.id}\` 🔕\n`
-          text += `\t  · comment: \`${el.comment}\`\n`
-          text += `\t  · createdBy: \`${el.createdBy}\`\n`
-          text += `\t  · endsAt: \`${el.endsAt}\`\n`
+          text += `‣ **Silence id**: \`${items.id}\` 🔕\n`
+          text += `\t  · comment: \`${items.comment}\`\n`
+          text += `\t  · createdBy: \`${items.createdBy}\`\n`
+          text += `\t  · endsAt: \`${items.endsAt}\`\n`
           text += '\t  · matchers: \n'
-          for (const matcher of el.matchers) {
+          for (const matcher of items.matchers) {
+            matchersForLink[matcher.name] = matcher.value
             text += `\t\t\t\t  · ${matcher.name}: \`${matcher.value}\`\n`
           }
-          text += `\t  Silence will end in ${humanizeDuration(new Date(el.endsAt))}.\n\n`
-          silenceButtons.push(this.bot.inlineButton(`Expire: ${el.id.split('-')[0]}`, { callback: `expire_${el.id}` }))
+          const silenceLink = this.alertLink(matchersForLink)
+          text += `\t  · [view silence on alertmanager](${silenceLink}) ⬈\n`
+          text += `\t  ↳ Silence will end in ${humanizeDuration(new Date(items.endsAt))}.\n\n`
+          silenceButtons.push(this.bot.inlineButton(`Expire: ${items.id.split('-')[0]}`, { callback: `expire_${items.id}` }))
         }
       })
       const replyMarkup = this.bot.inlineKeyboard(spliceArray(silenceButtons))
