@@ -25,16 +25,26 @@ export class Telegram {
     const alertLabels = data.alerts[0].labels
     console.log(alertLabels)
     const am = new AlertManager()
-    let alertURL = new URL(am.getAlertmanagerURL())
+    const alertURL: URL = new URL(am.getAlertmanagerURL())
     alertURL.searchParams.append('silenced', 'false')
     alertURL.searchParams.append('inhibited', 'false')
     alertURL.searchParams.append('active', 'true')
-    // for (const el of alertLabels) {
-    //   console.log("toto", el)
-    // }
-    alertURL.searchParams.append('filter', JSON.stringify(alertLabels))
+    let filter: string = '{'
+    let index: number = 0
+    for (const [key, value] of Object.entries(alertLabels)) {
+      console.log('key', key)
+      console.log('value', value)
+      filter += `${key}="${value}"`
+      if (index !== Object.keys(alertLabels).length - 1) {
+        filter += ','
+      }
+      index += 1
+    }
+    filter += '}'
+    alertURL.searchParams.append('filter', filter)
     console.log(alertURL)
-    return 'https://am-tst.idev-fsd.ml/'
+
+    return `${alertURL.origin}/#/alerts${alertURL.search}`
   }
 
   private formatAlertMessage = (data: any) => {
