@@ -71,6 +71,7 @@ docker-exec:
 http-post:
 	sleep 2
 	http POST http://localhost:3000/${TG_GROUP_ID} < alert.json
+	http POST http://localhost:3000/${TG_GROUP_ID} < alerts.json
 
 .PHONY: docker-tag
 ## docker- the Docker image with latest and the version in package.json

@@ -1,0 +1,552 @@
+{
+  "receiver":"debugapi",
+  "status":"firing",
+  "alerts":[
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Canari status code is not 404",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"canari"
+      },
+      "annotations":{
+        "description":"Expr is probe_http_status_code{slug=\\'canari\\'} != 404",
+        "summary":"Canari HTTP status is not 404"
+      },
+      "startsAt":"2020-09-22T09:59:10.863266294Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code%7Bslug%3D%22canari%22%7D+%21%3D+404&g0.tab=1",
+      "fingerprint":"5b2d959df6c8c67a"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"no",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"gitlab"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"1df3450ac6c292be"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"no",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"go"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"aa964832d1b63641"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"no",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"igm"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"4306b4d14b2f2fe2"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"no",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"sti"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"1bcfbef5c286c695"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"no",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"support-epfl"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"73de66d04a990fc0"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"DCSL_TEST"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"6c1584f7bd056ac2"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"actu"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"736047d2b2b202fa"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"alice.epfl.ch"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"35f239799c13ea79"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"canari"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"5baf1b8454cbb2eb"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"dcsl.epfl.ch"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T11:37:27.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"88c8a9bf350ab2f3"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"memento"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"bbe9ec86618d2f62"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"people"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"6c873a1d71d6509a"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"spiritual-care"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"396adf9b6dbf4840"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www.epfl.ch"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"bda9bf7608f89f6c"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www.epfl.ch_campus_security-safety"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"9865dd9ea7171e42"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www.epfl.ch_labs"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"4c028ed2fa9e9cbd"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_about"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"c6ab1f840cb6a29c"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_campus"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"a6c118f4283c4b04"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_campus_services"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"5b2bf574b6998809"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_education"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"bd974b648bf474b5"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_innovation"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"2b3d1fd5f1ad7d32"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_research"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:58:57.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"b0ad2cff4d5201f0"
+    },
+    {
+      "status":"firing",
+      "labels":{
+        "alertname":"Site status code is not 200",
+        "c2c":"yes",
+        "instance":"blackboxexporter:9115",
+        "job":"blackbox-zurich",
+        "origin":"zurich",
+        "probe":"blackbox",
+        "sendto":"telegram",
+        "severity":"page",
+        "slug":"www_epfl_ch_schools"
+      },
+      "annotations":{
+        "description":"blackboxexporter:9115 of job blackbox-zurich has not HTTP status == 200 for more than 5 minutes.",
+        "summary":"HTTP status of blackboxexporter:9115 is not 200"
+      },
+      "startsAt":"2020-09-22T09:59:12.249494551Z",
+      "endsAt":"0001-01-01T00:00:00Z",
+      "generatorURL":"https://prometheus-tst.idev-fsd.ml/graph?g0.expr=probe_http_status_code+%3D%3D+200&g0.tab=1",
+      "fingerprint":"dddd6ddd3402fd20"
+    }
+  ],
+  "groupLabels":{
+    "instance":"blackboxexporter:9115"
+  },
+  "commonLabels":{
+    "instance":"blackboxexporter:9115",
+    "job":"blackbox-zurich",
+    "origin":"zurich",
+    "probe":"blackbox",
+    "sendto":"telegram",
+    "severity":"page"
+  },
+  "commonAnnotations":{
+    
+  },
+  "externalURL":"https://am-tst.idev-fsd.ml",
+  "version":"4",
+  "groupKey":"{}/{sendto=\"telegram\"}:{instance=\"blackboxexporter:9115\"}",
+  "truncatedAlerts":0
+}

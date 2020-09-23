@@ -62,8 +62,17 @@ export class Telegram {
         return Object.keys(data).includes(key)
       })
     ) {
-      msg.message += `Title: _${data.commonAnnotations.summary}_\n\n`
-      msg.message += `Description: \`${data.commonAnnotations.description}\`\n\n`
+
+      data.alerts.slice(0, 4).forEach((alert: { labels: { alertname: any }; annotations: { description: any } }) => {
+        msg.message += `Title: _${alert.labels.alertname}_\n`
+        msg.message += `Description: \`${alert.annotations.description}\`\n\n`
+
+      })
+
+      if (data.alerts.length > 5) {
+        msg.message += `There are still ${ data.alerts.length - 5 } more alerts not displayed in this message.\n\n`
+      }
+
       msg.message += `Firing since ${msg.firingSince}. \n\n`
       msg.message += `📣 [to the alertmanager](${msg.alertLink}) | [view on prometheus](${msg.promLink}) \n`
     } else {
@@ -144,18 +153,29 @@ Please run /help to see a list of available commands.
       logger.debug(`alerts: ${alerts}`)
       let text = '🔔 **Alertmanager\'s alerts**:\n\n'
       let activeAlertsNumber: number = 0
-      alerts.forEach((items: any) => {
+
+      const alertFound: any[] = []
+      for (const alert of alerts) {
+        if (alert.labels.alertname in alertFound) {
+          alertFound[alert.labels.alertname].push(alert)
+        } else {
+          alertFound[alert.labels.alertname] = [alert]
+        }
+      }
+
+      for (const [alertname, alerts] of Object.entries(alertFound)) {
         activeAlertsNumber += 1
-        text += `‣ **Alert id**: \`${items.fingerprint}\` 🔔\n`
-        text += `\t  · alertname: \`${items.labels.alertname}\`\n`
-        text += `\t  · summary: \`${items.annotations.summary}\`\n`
+        text += `‣ **Alert id**: \`${alerts[0].fingerprint}\` 🔔\n`
+        text += `\t  · alertname: \`${alerts[0].labels.alertname}\`\n`
+       /* text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
         text += `\t  · starts: \`${items.startsAt}\`\n`
-        text += `\t  · job: \`${items.labels.job}\`\n`
-        const alertLink = this.alertLink(items.labels)
+        text += `\t  · job: \`${items.labels.job}\`\n`*/
+        text += `\t ${ alerts.length} \n`
+        const alertLink = this.alertLink(alerts[0].labels)
         text += `\t  · [view alert on alertmanager](${alertLink}) ⬈\n\n`
-        silenceButtons.push(this.bot.inlineButton(`Silence: ${items.fingerprint}`, { callback: `silence_${items.fingerprint}` }))
-      })
+        silenceButtons.push(this.bot.inlineButton(`Silence: ${alerts[0].fingerprint}`, { callback: `silence_${alerts[0].fingerprint}` }))
+      }
       if (activeAlertsNumber === 0) {
         text = 'No alerts found. Use /silences to see active silences.'
       }
