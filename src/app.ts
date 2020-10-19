@@ -1,11 +1,13 @@
 import express from 'express'
-import { Telegram } from './telegram'
-import { validateGroupOrChatID } from './utils'
 import bodyParser from 'body-parser'
+import Telegram from './telegram'
+import { validateGroupOrChatID } from './utils'
 import { logger } from './logger'
 
+const pjson = require('../package.json')
+
 const app: express.Application = express()
-const port: number = 3000
+const port = 3000
 const jsonParser = bodyParser.json()
 
 app.use(logger.expressAppLogger(), logger.expressLogError())
@@ -39,6 +41,5 @@ app.post('/*', jsonParser, async (req: any, res: any) => {
 
 // Launch express app on specified port
 app.listen(port, () => {
-  const pjson = require('../package.json')
   logger.info(`${pjson.name} (version: ${pjson.version}) listening at http://localhost:${port}`)
 })

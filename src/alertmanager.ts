@@ -3,11 +3,15 @@ import nodeFetch, { Headers } from 'node-fetch'
 import { isJsonString } from './utils'
 import { logger } from './logger'
 
-export class AlertManager {
+class AlertManager {
   private readonly bAuthUser: string | boolean
+
   private readonly bAuthPass: string | boolean
+
   private readonly AM_URL: string
+
   private readonly AM_API_URL: string
+
   private headers: any
 
   constructor() {
@@ -25,18 +29,14 @@ export class AlertManager {
     this.AM_API_URL = `${this.AM_URL}/api/v2`
   }
 
-  public getAlertmanagerURL = (): string => {
-    return this.AM_URL
-  }
+  public getAlertmanagerURL = (): string => this.AM_URL
 
-  public getAlertmanagerAPIURL = (): string => {
-    return this.AM_API_URL
-  }
+  public getAlertmanagerAPIURL = (): string => this.AM_API_URL
 
   public getAlertmanagerAPI = async (endpoint: string) => {
     const options: any = { headers: this.headers }
     logger.info(`getAlertmanagerAPI fetch ${this.AM_API_URL}/${endpoint}`)
-    return await nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
+    return nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
       .then((res) => res.json())
       .then((json) => json)
       .catch((err) => logger.error(err))
@@ -47,7 +47,7 @@ export class AlertManager {
     options.method = 'post'
     options.body = JSON.stringify(body)
     options.headers.append('Content-Type', 'application/json')
-    return await nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
+    return nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
       .then((res) => {
         logger.info(`postAlertmanagerAPI status: ${res.status} (${res.statusText})`)
         if (res.size > 0 && res.ok && isJsonString(res.body)) {
@@ -55,16 +55,14 @@ export class AlertManager {
         }
         return res.text()
       })
-      .then((body) => {
-        return body || 'body is empty'
-      })
+      .then((_body) => _body || 'body is empty')
       .catch((err) => logger.error(err))
   }
 
   public deleteAlertmanagerAPI = async (endpoint: string) => {
     const options: any = { headers: this.headers }
     options.method = 'delete'
-    return await nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
+    return nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
       .then((res) => {
         logger.info(`deleteAlertmanagerAPI status: ${res.status} (${res.statusText})`)
         return res.ok
@@ -74,7 +72,11 @@ export class AlertManager {
 
   public filterWithFingerprint = async (fingerprint: string) => {
     const alertLists = await this.getAlertmanagerAPI('alerts')
-    const alertListsMatched = alertLists.filter((el: { fingerprint: any }) => el.fingerprint === fingerprint)
+    const alertListsMatched = alertLists.filter(
+      (el: { fingerprint: any }) => el.fingerprint === fingerprint
+    )
     return alertListsMatched
   }
 }
+
+export default { AlertManager }

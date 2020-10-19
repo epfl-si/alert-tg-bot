@@ -1,4 +1,4 @@
-import javascriptTimeAgo from 'javascript-time-ago'
+import JavascriptTimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
 /**
@@ -22,8 +22,8 @@ const isJsonString = (text: any) => {
  * based on now() <-> eventDate1.
  */
 const humanizeDuration = (eventDate1: Date) => {
-  javascriptTimeAgo.addLocale(en)
-  const timeAgo = new javascriptTimeAgo('en-US')
+  JavascriptTimeAgo.addLocale(en)
+  const timeAgo = new JavascriptTimeAgo('en-US')
   return timeAgo.format(eventDate1.getTime(), 'time')
 }
 
@@ -47,4 +47,6 @@ const spliceArray = (inputArray: any[]) => {
   return outputArray
 }
 
-export { humanizeDuration, isJsonString, spliceArray, validateGroupOrChatID }
+export {
+ humanizeDuration, isJsonString, spliceArray, validateGroupOrChatID
+}

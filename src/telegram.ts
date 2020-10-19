@@ -1,17 +1,18 @@
 import moment from 'moment'
-import telebot from 'telebot'
-import { AlertManager } from './alertmanager'
+import Telebot from 'telebot'
+import { URL } from 'url'
+import AlertManager from './alertmanager'
 import { humanizeDuration, spliceArray } from './utils'
-
 import { logger } from './logger'
-import { URL, URLSearchParams } from 'url'
 
-export class Telegram {
+const pjson = require('../package.json')
+
+class Telegram {
   private bot: telebot
 
   constructor() {
     if (process.env.TELEGRAM_BOT_TOKEN) {
-      this.bot = new telebot(process.env.TELEGRAM_BOT_TOKEN)
+      this.bot = new Telebot(process.env.TELEGRAM_BOT_TOKEN)
     } else {
       logger.error('Please define the TELEGRAM_BOT_TOKEN environment variable')
       process.exit(1)
@@ -24,7 +25,7 @@ export class Telegram {
     alertURL.searchParams.append('silenced', 'false')
     alertURL.searchParams.append('inhibited', 'false')
     alertURL.searchParams.append('active', 'true')
-    let filter: string = ''
+    let filter = ''
     for (const [key, value] of Object.entries(labelsOrMatchers)) {
       filter += `${key}="${value}",`
     }
@@ -43,7 +44,7 @@ export class Telegram {
     msg.firingSince = humanizeDuration(new Date(msg.startsAt))
     msg.alertLink = this.alertLink(data.alerts[0].labels)
 
-    switch (msg['status']) {
+    switch (msg.status) {
       // These emojis could help 🌶🚨❗️📣📢🔔🔕🔥🔇🤫
       case 'firing':
         msg.message += '🔥 Firing 🔥\n\n'
@@ -54,18 +55,18 @@ export class Telegram {
     }
 
     const wantedKeys: string[] = ['alerts', 'commonAnnotations', 'externalURL']
-    if (
-      wantedKeys.every((key) => {
-        return Object.keys(data).includes(key)
-      })
-    ) {
-      data.alerts.slice(0, 4).forEach((alert: { labels: { alertname: any }; annotations: { description: any } }) => {
-        msg.message += `Title: _${alert.labels.alertname}_\n`
-        msg.message += `Description: \`${alert.annotations.description}\`\n\n`
-      })
+    if (wantedKeys.every((key) => Object.keys(data).includes(key))) {
+      data.alerts
+        .slice(0, 4)
+        .forEach((alert: { labels: { alertname: any }; annotations: { description: any } }) => {
+          msg.message += `Title: _${alert.labels.alertname}_\n`
+          msg.message += `Description: \`${alert.annotations.description}\`\n\n`
+        })
 
       if (data.alerts.length > 5) {
-        msg.message += `There are still ${data.alerts.length - 5} more alerts not displayed in this message.\n\n`
+        msg.message += `There are still ${
+          data.alerts.length - 5
+        } more alerts not displayed in this message.\n\n`
       }
 
       msg.message += `Firing since ${msg.firingSince}. \n\n`
@@ -83,18 +84,20 @@ export class Telegram {
     const replyMarkup = this.bot.inlineKeyboard([
       [
         // FIXME: link should list all label to point to this specific alert
-        this.bot.inlineButton('Link to this alert', { url: message['alertLink'] }),
-        this.bot.inlineButton('Link to prometheus query', { url: message['promLink'] }),
+        this.bot.inlineButton('Link to this alert', { url: message.alertLink }),
+        this.bot.inlineButton('Link to prometheus query', { url: message.promLink }),
       ],
       [
         this.bot.inlineButton('Silence 1h', { callback: `alert_1_${data.alerts[0].fingerprint}` }),
         this.bot.inlineButton('Silence 4h', { callback: `alert_4_${data.alerts[0].fingerprint}` }),
         this.bot.inlineButton('Silence 8h', { callback: `alert_8_${data.alerts[0].fingerprint}` }),
-        this.bot.inlineButton('Silence 24h', { callback: `alert_24_${data.alerts[0].fingerprint}` }),
+        this.bot.inlineButton('Silence 24h', {
+          callback: `alert_24_${data.alerts[0].fingerprint}`,
+        }),
       ],
     ])
-    logger.info(`Alert has been sent to chat/user '${chatID}':\n${message['message']}\n---`)
-    return await this.bot.sendMessage(chatID, message['message'], { replyMarkup, parseMode: 'markdown' })
+    logger.info(`Alert has been sent to chat/user '${chatID}':\n${message.message}\n---`)
+    return this.bot.sendMessage(chatID, message.message, { replyMarkup, parseMode: 'markdown' })
   }
 
   public manageBotEvents = async () => {
@@ -103,13 +106,16 @@ export class Telegram {
     const alertManager = new AlertManager()
 
     // logger
-    this.bot.on('text', (msg, props) => {
-      const user = `@${msg.from.username}` || `${msg.from.first_name} ${msg.from.last_name}` || msg.from.first_name || msg.from.id
+    this.bot.on('text', (msg) => {
+      const user = `@${msg.from.username}`
+        || `${msg.from.first_name} ${msg.from.last_name}`
+        || msg.from.first_name
+        || msg.from.id
       logger.info(`${user} send msg#${msg.message_id} (chat_id: '${msg.chat.id}'): ${msg.text}`)
     })
 
+    // eslint-disable-next-line
     this.bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
-      const pjson = require('../package.json')
       const text = `This bot (@${botName}) is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info.
 Please run /help to see a list of available commands.
   \t  · version: \`${pjson.version}\`
@@ -119,7 +125,8 @@ Please run /help to see a list of available commands.
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
 
-    this.bot.on(new RegExp(`^\/help(@${botName})?$`), (msg) => {
+    // eslint-disable-next-line
+    this.bot.on(new RegExp(`^\/help(@${botName})?$`), msg => {
       const text = `**${botName}'s commands**:
   \t  · /start: welcome message, bot information
   \t  · /help: this help
@@ -131,6 +138,7 @@ Please run /help to see a list of available commands.
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
 
+    // eslint-disable-next-line
     this.bot.on(new RegExp(`^\/status(@${botName})?$`), async (msg) => {
       const amStatus: any = await alertManager.getAlertmanagerAPI('status')
       logger.debug(amStatus.versionInfo)
@@ -142,12 +150,13 @@ Please run /help to see a list of available commands.
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
 
+    // eslint-disable-next-line
     this.bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
       const silenceButtons: any[] = []
       logger.debug(`alerts: ${alerts}`)
       let text = "🔔 **Alertmanager's alerts**:\n\n"
-      let activeAlertsNumber: number = 0
+      let activeAlertsNumber = 0
 
       const alertFound: any[] = []
       for (const alert of alerts) {
@@ -158,18 +167,22 @@ Please run /help to see a list of available commands.
         }
       }
 
-      for (const [alertname, alerts] of Object.entries(alertFound)) {
+      for (const [alertname, alertVal] of Object.entries(alertFound)) {
         activeAlertsNumber += 1
-        text += `‣ **Alert id**: \`${alerts[0].fingerprint}\` 🔔\n`
-        text += `\t  · alertname: \`${alerts[0].labels.alertname}\`\n`
+        text += `‣ **Alert id**: \`${alertVal[0].fingerprint}\` 🔔\n`
+        text += `\t  · alertname: \`${alertname}\`\n`
         /* text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
         text += `\t  · starts: \`${items.startsAt}\`\n`
-        text += `\t  · job: \`${items.labels.job}\`\n`*/
-        text += `\t ${alerts.length} \n`
-        const alertLink = this.alertLink(alerts[0].labels)
+        text += `\t  · job: \`${items.labels.job}\`\n` */
+        text += `\t ${alertVal.length} \n`
+        const alertLink = this.alertLink(alertVal[0].labels)
         text += `\t  · [view alert on alertmanager](${alertLink}) ⬈\n\n`
-        silenceButtons.push(this.bot.inlineButton(`Silence: ${alerts[0].fingerprint}`, { callback: `silence_${alerts[0].fingerprint}` }))
+        silenceButtons.push(
+          this.bot.inlineButton(`Silence: ${alertVal[0].fingerprint}`, {
+            callback: `silence_${alertVal[0].fingerprint}`,
+          })
+        )
       }
       if (activeAlertsNumber === 0) {
         text = 'No alerts found. Use /silences to see active silences.'
@@ -179,15 +192,16 @@ Please run /help to see a list of available commands.
       return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
 
+    // eslint-disable-next-line
     this.bot.on(new RegExp(`^\/silences(@${botName})?$`), async (msg) => {
       const silences: any = await alertManager.getAlertmanagerAPI('silences')
       const silenceButtons: any[] = []
       logger.debug(silences)
       let text = "🔕 **Alertmanager's silences**:\n\n"
-      let activeSilencesNumber: number = 0
+      let activeSilencesNumber = 0
       silences.forEach((items: any) => {
         if (items.status.state === 'active') {
-          let matchersForLink: any = {}
+          const matchersForLink: any = {}
           activeSilencesNumber += 1
           // do not list expired silences
           text += `‣ **Silence id**: \`${items.id}\` 🔕\n`
@@ -202,7 +216,11 @@ Please run /help to see a list of available commands.
           const silenceLink = this.alertLink(matchersForLink)
           text += `\t  · [view silence on alertmanager](${silenceLink}) ⬈\n`
           text += `\t  ↳ Silence will end in ${humanizeDuration(new Date(items.endsAt))}.\n\n`
-          silenceButtons.push(this.bot.inlineButton(`Expire: ${items.id.split('-')[0]}`, { callback: `expire_${items.id}` }))
+          silenceButtons.push(
+            this.bot.inlineButton(`Expire: ${items.id.split('-')[0]}`, {
+              callback: `expire_${items.id}`,
+            })
+          )
         }
       })
       const replyMarkup = this.bot.inlineKeyboard(spliceArray(silenceButtons))
@@ -213,6 +231,7 @@ Please run /help to see a list of available commands.
       return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
 
+    // eslint-disable-next-line
     this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) => {
       const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
       logger.debug(`receivers: ${receivers}`)
@@ -226,7 +245,10 @@ Please run /help to see a list of available commands.
 
     // Inline button callback
     this.bot.on('callbackQuery', async (msg) => {
-      const user = `@${msg.from.username}` || `${msg.from.first_name} ${msg.from.last_name}` || msg.from.first_name || msg.from.id
+      const user = `@${msg.from.username}`
+        || `${msg.from.first_name} ${msg.from.last_name}`
+        || msg.from.first_name
+        || msg.from.id
 
       // Callback for the /alerts command
       if (msg.data.startsWith('silence_')) {
@@ -241,10 +263,16 @@ Please run /help to see a list of available commands.
             this.bot.inlineButton('Silence 24h', { callback: `alert_24_${fingerprint}` }),
           ],
         ])
-        this.bot.answerCallbackQuery(msg.id, { text: "Return for callback 'silence_'", showAlert: false })
-        const text: string = `Please choose the silence duration for the alert ${fingerprint}`
+        this.bot.answerCallbackQuery(msg.id, {
+          text: "Return for callback 'silence_'",
+          showAlert: false,
+        })
+        const text = `Please choose the silence duration for the alert ${fingerprint}`
         logger.info(`${botName} sendMessage to ${msg.message.chat.id}: ${text}`)
-        return await this.bot.sendMessage(msg.message.chat.id, text, { replyMarkup, parseMode: 'markdown' })
+        return this.bot.sendMessage(msg.message.chat.id, text, {
+          replyMarkup,
+          parseMode: 'markdown',
+        })
       }
 
       // Callback for the /silences command
@@ -253,7 +281,9 @@ Please run /help to see a list of available commands.
         const silenceId: any = msg.data.split('expire_')[1]
         const amSilence: any = await alertManager.deleteAlertmanagerAPI(`silence/${silenceId}`)
         logger.debug(amSilence)
-        let text: string = amSilence ? `Silence \`${silenceId}\` is now expired.` : `Error while expiring silence ${silenceId}.`
+        let text: string = amSilence
+          ? `Silence \`${silenceId}\` is now expired.`
+          : `Error while expiring silence ${silenceId}.`
         text += '\nUse /silences to list all active silences.'
         logger.info(`${botName} sendMessage to ${msg.message.chat.id}: ${text}`)
         this.bot.answerCallbackQuery(msg.id, { text, showAlert: false })
@@ -294,7 +324,7 @@ Please run /help to see a list of available commands.
         // FIXME: try/catch or check the returned value
         const silencedAlert = await alertManager.postAlertmanagerAPI('silences', silencedAlertBody)
         logger.debug(silencedAlert)
-        const text: string = `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`
+        const text = `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`
         this.bot.answerCallbackQuery(msg.id, { text, showAlert: false })
         logger.info(`${botName} sendMessage to ${msg.message.chat.id}: ${text}`)
         return this.bot.sendMessage(
@@ -303,9 +333,12 @@ Please run /help to see a list of available commands.
           { parseMode: 'markdown' }
         )
       }
+      return false
     })
 
-    // Actually strat the bot in a polling mode
+    // Actually start the bot in a polling mode
     this.bot.start()
   }
 }
+
+export default { Telegram }
