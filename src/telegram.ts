@@ -1,15 +1,12 @@
 import moment from 'moment'
 import telebot from 'telebot'
 import { AlertManager } from './alertmanager'
-import {
-  humanizeDuration,
-  spliceArray} from './utils'
+import { humanizeDuration, spliceArray } from './utils'
 
 import { logger } from './logger'
 import { URL, URLSearchParams } from 'url'
 
 export class Telegram {
-
   private bot: telebot
 
   constructor() {
@@ -62,15 +59,13 @@ export class Telegram {
         return Object.keys(data).includes(key)
       })
     ) {
-
       data.alerts.slice(0, 4).forEach((alert: { labels: { alertname: any }; annotations: { description: any } }) => {
         msg.message += `Title: _${alert.labels.alertname}_\n`
         msg.message += `Description: \`${alert.annotations.description}\`\n\n`
-
       })
 
       if (data.alerts.length > 5) {
-        msg.message += `There are still ${ data.alerts.length - 5 } more alerts not displayed in this message.\n\n`
+        msg.message += `There are still ${data.alerts.length - 5} more alerts not displayed in this message.\n\n`
       }
 
       msg.message += `Firing since ${msg.firingSince}. \n\n`
@@ -151,7 +146,7 @@ Please run /help to see a list of available commands.
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
       const silenceButtons: any[] = []
       logger.debug(`alerts: ${alerts}`)
-      let text = '🔔 **Alertmanager\'s alerts**:\n\n'
+      let text = "🔔 **Alertmanager's alerts**:\n\n"
       let activeAlertsNumber: number = 0
 
       const alertFound: any[] = []
@@ -167,11 +162,11 @@ Please run /help to see a list of available commands.
         activeAlertsNumber += 1
         text += `‣ **Alert id**: \`${alerts[0].fingerprint}\` 🔔\n`
         text += `\t  · alertname: \`${alerts[0].labels.alertname}\`\n`
-       /* text += `\t  · summary: \`${items.annotations.summary}\`\n`
+        /* text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
         text += `\t  · starts: \`${items.startsAt}\`\n`
         text += `\t  · job: \`${items.labels.job}\`\n`*/
-        text += `\t ${ alerts.length} \n`
+        text += `\t ${alerts.length} \n`
         const alertLink = this.alertLink(alerts[0].labels)
         text += `\t  · [view alert on alertmanager](${alertLink}) ⬈\n\n`
         silenceButtons.push(this.bot.inlineButton(`Silence: ${alerts[0].fingerprint}`, { callback: `silence_${alerts[0].fingerprint}` }))
@@ -188,7 +183,7 @@ Please run /help to see a list of available commands.
       const silences: any = await alertManager.getAlertmanagerAPI('silences')
       const silenceButtons: any[] = []
       logger.debug(silences)
-      let text = '🔕 **Alertmanager\'s silences**:\n\n'
+      let text = "🔕 **Alertmanager's silences**:\n\n"
       let activeSilencesNumber: number = 0
       silences.forEach((items: any) => {
         if (items.status.state === 'active') {
@@ -218,10 +213,10 @@ Please run /help to see a list of available commands.
       return this.bot.sendMessage(msg.chat.id, text, { replyMarkup, parseMode: 'markdown' })
     })
 
-    this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) =>  {
+    this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) => {
       const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
       logger.debug(`receivers: ${receivers}`)
-      let text = '**Alertmanager\'s receivers**:\n'
+      let text = "**Alertmanager's receivers**:\n"
       receivers.forEach((items: any) => {
         text += `\t  · ${items.name}\n`
       })
@@ -249,10 +244,7 @@ Please run /help to see a list of available commands.
         this.bot.answerCallbackQuery(msg.id, { text: "Return for callback 'silence_'", showAlert: false })
         const text: string = `Please choose the silence duration for the alert ${fingerprint}`
         logger.info(`${botName} sendMessage to ${msg.message.chat.id}: ${text}`)
-        return await this.bot.sendMessage(
-          msg.message.chat.id, text,
-          { replyMarkup, parseMode: 'markdown' },
-        )
+        return await this.bot.sendMessage(msg.message.chat.id, text, { replyMarkup, parseMode: 'markdown' })
       }
 
       // Callback for the /silences command
@@ -261,7 +253,7 @@ Please run /help to see a list of available commands.
         const silenceId: any = msg.data.split('expire_')[1]
         const amSilence: any = await alertManager.deleteAlertmanagerAPI(`silence/${silenceId}`)
         logger.debug(amSilence)
-        let text: string = (amSilence) ? `Silence \`${silenceId}\` is now expired.` : `Error while expiring silence ${silenceId}.`
+        let text: string = amSilence ? `Silence \`${silenceId}\` is now expired.` : `Error while expiring silence ${silenceId}.`
         text += '\nUse /silences to list all active silences.'
         logger.info(`${botName} sendMessage to ${msg.message.chat.id}: ${text}`)
         this.bot.answerCallbackQuery(msg.id, { text, showAlert: false })
@@ -270,7 +262,6 @@ Please run /help to see a list of available commands.
 
       // Callback for the alerts message and /silences command
       if (msg.data.startsWith('alert_')) {
-
         // TODO: it would be nice to update the silence instead of always create
         //       a new one. It would be easy if we add the silence's id to the
         //       POST body.
@@ -285,7 +276,7 @@ Please run /help to see a list of available commands.
         logger.debug(myAlert)
         const matchers = []
         for (const [key, value] of Object.entries(myAlert[0].labels)) {
-          const tmp: { name: string, value: any, isRegex: boolean } = {
+          const tmp: { name: string; value: any; isRegex: boolean } = {
             value,
             name: key,
             isRegex: false,
@@ -306,9 +297,12 @@ Please run /help to see a list of available commands.
         const text: string = `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`
         this.bot.answerCallbackQuery(msg.id, { text, showAlert: false })
         logger.info(`${botName} sendMessage to ${msg.message.chat.id}: ${text}`)
-        return this.bot.sendMessage(msg.message.chat.id, `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`, { parseMode: 'markdown' })
+        return this.bot.sendMessage(
+          msg.message.chat.id,
+          `The alert (#${fingerprint}) "\`${myAlert[0].labels.alertname}\`" has been silenced for ${duration}h.\nUse /silences to list all active silences.`,
+          { parseMode: 'markdown' }
+        )
       }
-
     })
 
     // Actually strat the bot in a polling mode

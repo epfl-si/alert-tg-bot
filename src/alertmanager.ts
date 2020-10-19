@@ -4,7 +4,6 @@ import { isJsonString } from './utils'
 import { logger } from './logger'
 
 export class AlertManager {
-
   private readonly bAuthUser: string | boolean
   private readonly bAuthPass: string | boolean
   private readonly AM_URL: string
@@ -38,9 +37,9 @@ export class AlertManager {
     const options: any = { headers: this.headers }
     logger.info(`getAlertmanagerAPI fetch ${this.AM_API_URL}/${endpoint}`)
     return await nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
-      .then(res => res.json())
-      .then(json => json)
-      .catch(err => logger.error(err))
+      .then((res) => res.json())
+      .then((json) => json)
+      .catch((err) => logger.error(err))
   }
 
   public postAlertmanagerAPI = async (endpoint: string, body: any) => {
@@ -59,7 +58,7 @@ export class AlertManager {
       .then((body) => {
         return body || 'body is empty'
       })
-      .catch(err => logger.error(err))
+      .catch((err) => logger.error(err))
   }
 
   public deleteAlertmanagerAPI = async (endpoint: string) => {
@@ -70,13 +69,12 @@ export class AlertManager {
         logger.info(`deleteAlertmanagerAPI status: ${res.status} (${res.statusText})`)
         return res.ok
       })
-      .catch(err => logger.error(err))
+      .catch((err) => logger.error(err))
   }
 
   public filterWithFingerprint = async (fingerprint: string) => {
     const alertLists = await this.getAlertmanagerAPI('alerts')
-    const alertListsMatched = alertLists.filter((el: { fingerprint: any }) =>  el.fingerprint === fingerprint)
+    const alertListsMatched = alertLists.filter((el: { fingerprint: any }) => el.fingerprint === fingerprint)
     return alertListsMatched
   }
-
 }

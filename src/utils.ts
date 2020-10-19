@@ -47,9 +47,4 @@ const spliceArray = (inputArray: any[]) => {
   return outputArray
 }
 
-export {
-  humanizeDuration,
-  isJsonString,
-  spliceArray,
-  validateGroupOrChatID,
-}
+export { humanizeDuration, isJsonString, spliceArray, validateGroupOrChatID }
