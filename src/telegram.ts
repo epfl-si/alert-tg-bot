@@ -7,8 +7,8 @@ import { logger } from './logger'
 
 const pjson = require('../package.json')
 
-class Telegram {
-  private bot: telebot
+export default class Telegram {
+  private bot: Telebot
 
   constructor() {
     if (process.env.TELEGRAM_BOT_TOKEN) {
@@ -26,9 +26,9 @@ class Telegram {
     alertURL.searchParams.append('inhibited', 'false')
     alertURL.searchParams.append('active', 'true')
     let filter = ''
-    for (const [key, value] of Object.entries(labelsOrMatchers)) {
+    Object.entries(labelsOrMatchers).forEach((key, value) => {
       filter += `${key}="${value}",`
-    }
+    })
     filter = `{${filter.slice(0, -1)}}`
     alertURL.searchParams.append('filter', filter)
     logger.debug(alertURL)
@@ -55,7 +55,7 @@ class Telegram {
     }
 
     const wantedKeys: string[] = ['alerts', 'commonAnnotations', 'externalURL']
-    if (wantedKeys.every((key) => Object.keys(data).includes(key))) {
+    if (wantedKeys.every(key => Object.keys(data).includes(key))) {
       data.alerts
         .slice(0, 4)
         .forEach((alert: { labels: { alertname: any }; annotations: { description: any } }) => {
@@ -106,16 +106,17 @@ class Telegram {
     const alertManager = new AlertManager()
 
     // logger
-    this.bot.on('text', (msg) => {
-      const user = `@${msg.from.username}`
-        || `${msg.from.first_name} ${msg.from.last_name}`
-        || msg.from.first_name
-        || msg.from.id
+    this.bot.on('text', msg => {
+      const user =
+        `@${msg.from.username}` ||
+        `${msg.from.first_name} ${msg.from.last_name}` ||
+        msg.from.first_name ||
+        msg.from.id
       logger.info(`${user} send msg#${msg.message_id} (chat_id: '${msg.chat.id}'): ${msg.text}`)
     })
 
     // eslint-disable-next-line
-    this.bot.on(new RegExp(`^\/start(@${botName})?$`), (msg) => {
+    this.bot.on(new RegExp(`^\/start(@${botName})?$`), msg => {
       const text = `This bot (@${botName}) is a helper for the IDEV-FSD prometheus and alertmanager: it sends alerts to groups and can list some of the alertmanager's info.
 Please run /help to see a list of available commands.
   \t  · version: \`${pjson.version}\`
@@ -139,19 +140,19 @@ Please run /help to see a list of available commands.
     })
 
     // eslint-disable-next-line
-    this.bot.on(new RegExp(`^\/status(@${botName})?$`), async (msg) => {
+    this.bot.on(new RegExp(`^\/status(@${botName})?$`), async msg => {
       const amStatus: any = await alertManager.getAlertmanagerAPI('status')
       logger.debug(amStatus.versionInfo)
       let text = '**Alertmanager status**:\n'
-      for (const [key, value] of Object.entries(amStatus.versionInfo)) {
+      Object.entries(amStatus.versionInfo).forEach((key, value) => {
         text += `\t  - ${key}: \`${value}\`\n`
-      }
+      })
       logger.info(`${botName} sendMessage to ${msg.chat.id}: ${text}`)
       return this.bot.sendMessage(msg.chat.id, text, { parseMode: 'markdown' })
     })
 
     // eslint-disable-next-line
-    this.bot.on(new RegExp(`^\/alerts(@${botName})?$`), async (msg) => {
+    this.bot.on(new RegExp(`^\/alerts(@${botName})?$`), async msg => {
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
       const silenceButtons: any[] = []
       logger.debug(`alerts: ${alerts}`)
@@ -159,15 +160,15 @@ Please run /help to see a list of available commands.
       let activeAlertsNumber = 0
 
       const alertFound: any[] = []
-      for (const alert of alerts) {
+      alerts.forEach((alert: any) => {
         if (alert.labels.alertname in alertFound) {
           alertFound[alert.labels.alertname].push(alert)
         } else {
           alertFound[alert.labels.alertname] = [alert]
         }
-      }
+      })
 
-      for (const [alertname, alertVal] of Object.entries(alertFound)) {
+      Object.entries(alertFound).forEach((alertname, alertVal: any) => {
         activeAlertsNumber += 1
         text += `‣ **Alert id**: \`${alertVal[0].fingerprint}\` 🔔\n`
         text += `\t  · alertname: \`${alertname}\`\n`
@@ -183,7 +184,7 @@ Please run /help to see a list of available commands.
             callback: `silence_${alertVal[0].fingerprint}`,
           })
         )
-      }
+      })
       if (activeAlertsNumber === 0) {
         text = 'No alerts found. Use /silences to see active silences.'
       }
@@ -193,7 +194,7 @@ Please run /help to see a list of available commands.
     })
 
     // eslint-disable-next-line
-    this.bot.on(new RegExp(`^\/silences(@${botName})?$`), async (msg) => {
+    this.bot.on(new RegExp(`^\/silences(@${botName})?$`), async msg => {
       const silences: any = await alertManager.getAlertmanagerAPI('silences')
       const silenceButtons: any[] = []
       logger.debug(silences)
@@ -209,10 +210,10 @@ Please run /help to see a list of available commands.
           text += `\t  · createdBy: \`${items.createdBy}\`\n`
           text += `\t  · endsAt: \`${items.endsAt}\`\n`
           text += '\t  · matchers: \n'
-          for (const matcher of items.matchers) {
+          items.matchers.forEach((matcher: any) => {
             matchersForLink[matcher.name] = matcher.value
             text += `\t\t\t\t  · ${matcher.name}: \`${matcher.value}\`\n`
-          }
+          });
           const silenceLink = this.alertLink(matchersForLink)
           text += `\t  · [view silence on alertmanager](${silenceLink}) ⬈\n`
           text += `\t  ↳ Silence will end in ${humanizeDuration(new Date(items.endsAt))}.\n\n`
@@ -232,7 +233,7 @@ Please run /help to see a list of available commands.
     })
 
     // eslint-disable-next-line
-    this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async (msg) => {
+    this.bot.on(new RegExp(`^\/receivers(@${botName})?$`), async msg => {
       const receivers: any = await alertManager.getAlertmanagerAPI('receivers')
       logger.debug(`receivers: ${receivers}`)
       let text = "**Alertmanager's receivers**:\n"
@@ -244,11 +245,12 @@ Please run /help to see a list of available commands.
     })
 
     // Inline button callback
-    this.bot.on('callbackQuery', async (msg) => {
-      const user = `@${msg.from.username}`
-        || `${msg.from.first_name} ${msg.from.last_name}`
-        || msg.from.first_name
-        || msg.from.id
+    this.bot.on('callbackQuery', async msg => {
+      const user =
+        `@${msg.from.username}` ||
+        `${msg.from.first_name} ${msg.from.last_name}` ||
+        msg.from.first_name ||
+        msg.from.id
 
       // Callback for the /alerts command
       if (msg.data.startsWith('silence_')) {
@@ -304,15 +306,15 @@ Please run /help to see a list of available commands.
         // Build the exact matchers list base on alert's labels
         const myAlert = await alertManager.filterWithFingerprint(fingerprint)
         logger.debug(myAlert)
-        const matchers = []
-        for (const [key, value] of Object.entries(myAlert[0].labels)) {
+        const matchers: { name: string; value: any; isRegex: boolean }[] = []
+        Object.entries(myAlert[0].labels).forEach((key: any, value) => {
           const tmp: { name: string; value: any; isRegex: boolean } = {
             value,
             name: key,
             isRegex: false,
           }
           matchers.push(tmp)
-        }
+        })
         // Construct the body that will be posted to silence this alert
         const silencedAlertBody = {
           matchers,
@@ -340,5 +342,3 @@ Please run /help to see a list of available commands.
     this.bot.start()
   }
 }
-
-export default { Telegram }
