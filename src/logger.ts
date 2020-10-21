@@ -1,8 +1,8 @@
 import winston from 'winston'
 
 const {
- colorize, combine, timestamp, printf
-} = winston.format
+ format
+} = winston
 
 const options: any = {
   console: {
@@ -12,11 +12,15 @@ const options: any = {
   },
 }
 
-const logFormat = printf(({ _timestamp, level, message }) => `${_timestamp} ${level}: ${message}`)
-
 const logger: winston.Logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'error', // Options: 'debug', 'info', 'error'
-  format: combine(timestamp(), colorize(), logFormat),
+  format: format.combine(
+    format.timestamp({
+      format: 'YYYY-MM-DD HH:mm:ss'
+    }),
+    format.colorize(),
+    format.printf(msg => `${msg.timestamp} ${msg.level}: ${msg.message}`)
+  ),
   transports: [new winston.transports.Console(options.console)],
 })
 
