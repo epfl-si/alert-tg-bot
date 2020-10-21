@@ -9,10 +9,20 @@ TG_GROUP_ID=-460587583
 _help:
 	@echo "$$(tput bold)Available rules (alphabetical order):$$(tput sgr0)";sed -ne"/^## /{h;s/.*//;:d" -e"H;n;s/^## //;td" -e"s/:.*//;G;s/\\n## /---/;s/\\n/ /g;p;}" ${MAKEFILE_LIST}|LC_ALL='C' sort -f |awk -F --- -v n=$$(tput cols) -v i=20 -v a="$$(tput setaf 6)" -v z="$$(tput sgr0)" '{printf"%s%*s%s ",a,-i,$$1,z;m=split($$2,w," ");l=n-i;for(j=1;j<=m;j++){l-=length(w[j])+1;if(l<= 0){l=n-i-length(w[j])-1;printf"\n%*s ",-i," ";}printf"%s ",w[j];}printf"\n";}'
 
+# To add all variable to your shell, use
+# export $(xargs < /keybase/team/epfl_wpveritas/env);
+check-env:
+ifeq ($(wildcard /keybase/team/epfl_idevfsd/idevfsd-NOC/alert-tg-bot/makefile_env),)
+	@echo "Be sure to have access to /keybase/team/epfl_idevfsd/idevfsd-NOC/alert-tg-bot"
+	@exit 1
+else
+include /keybase/team/epfl_idevfsd/idevfsd-NOC/alert-tg-bot/makefile_env
+endif
+
 .PHONY: _dev
 ## Brings up the Docker environment and send a test request
 _dev:
-	$(MAKE) docker-rm npm-ci ts-lint ts-transpile docker-build docker-run http-post docker-logs
+	$(MAKE) docker-rm npm-ci es-lint ts-transpile docker-build docker-run http-post docker-logs
 
 .PHONY: _release
 ## Build, tag and publish the Docker image
@@ -27,12 +37,11 @@ docker-rm:
 .PHONY: npm-ci
 ## Install node_module in a clean state (see <https://docs.npmjs.com/cli/ci.html>)
 npm-ci:
-	npm ci
+	npm i --no-fund
 
-.PHONY: ts-lint
-## Run TSLint (see https://palantir.github.io/tslint/)
-ts-lint:
-	npx tslint --fix src/*.ts --project tsconfig.json -c tslint.json
+.PHONY: es-lint
+es-lint:
+	npx eslint . --ext .js,.ts,.tsx --fix
 
 .PHONY: ts-transpile
 ## Transpile the TypeScript files (see <https://www.typescriptlang.org/docs/handbook/compiler-options.html>)
@@ -46,8 +55,9 @@ docker-build:
 
 .PHONY: docker-run
 ## Run the Docker container with relevant environment variables
-docker-run:
-	docker run -d --rm \
+docker-run: check-env
+	export $$(xargs < /keybase/team/epfl_idevfsd/idevfsd-NOC/alert-tg-bot/makefile_env); \
+	docker run -d \
 		-e LOG_LEVEL=debug \
 		-e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
 		-e AM_BASIC_AUTH_USER=${AM_BASIC_AUTH_USER} \
