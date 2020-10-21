@@ -60,6 +60,7 @@ docker-run: check-env
 	docker run -d \
 		-e LOG_LEVEL=debug \
 		-e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
+		-e AM_URL=http://am-tst.idev-fsd.ml \
 		-e AM_BASIC_AUTH_USER=${AM_BASIC_AUTH_USER} \
 		-e AM_BASIC_AUTH_PASS=${AM_BASIC_AUTH_PASS} \
 		-p 3000:3000 \
