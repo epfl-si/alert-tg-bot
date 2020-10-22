@@ -1,6 +1,6 @@
 {
   "name": "alert-tg-bot",
-  "version": "1.3.2",
+  "version": "1.3.4",
   "description": "A telegram bot that receive webhook from an alertmanager: send and manage alerts from a telegram chat",
   "main": "dist/app.js",
   "scripts": {

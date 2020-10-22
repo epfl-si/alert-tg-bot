@@ -155,33 +155,34 @@ Please run /help to see a list of available commands.
     this.bot.on(new RegExp(`^\/alerts(@${botName})?$`), async msg => {
       const alerts: any = await alertManager.getAlertmanagerAPI('alerts')
       const silenceButtons: any[] = []
-      logger.debug(`alerts: ${alerts}`)
+
       let text = "🔔 **Alertmanager's alerts**:\n\n"
       let activeAlertsNumber = 0
 
-      const alertFound: any[] = []
+      const alertFound: any = {}
       alerts.forEach((alert: any) => {
-        if (alert.labels.alertname in alertFound) {
-          alertFound[alert.labels.alertname].push(alert)
-        } else {
-          alertFound[alert.labels.alertname] = [alert]
+        if (!alertFound[alert.labels.alertname]) {
+          alertFound[alert.labels.alertname] = []
         }
+        alertFound[alert.labels.alertname].push(alert)
       })
 
-      Object.entries(alertFound).forEach((alertname, alertVal: any) => {
+      Object.entries(alertFound).forEach((alert) => {
+        const [alertname, alertVal]: any[] = alert
         activeAlertsNumber += 1
-        text += `‣ **Alert id**: \`${alertVal[0].fingerprint}\` 🔔\n`
+        const firstAlertVal = alertVal[0]
+        text += `‣ **Alert id**: \`${firstAlertVal.fingerprint}\` 🔔\n`
         text += `\t  · alertname: \`${alertname}\`\n`
         /* text += `\t  · summary: \`${items.annotations.summary}\`\n`
         text += `\t  · description: \`${items.annotations.description}\`\n`
         text += `\t  · starts: \`${items.startsAt}\`\n`
         text += `\t  · job: \`${items.labels.job}\`\n` */
-        text += `\t ${alertVal.length} \n`
-        const alertLink = this.alertLink(alertVal[0].labels)
+        text += `\t  · There are ${alertVal.length} similar alerts...\n`
+        const alertLink = this.alertLink(firstAlertVal.labels)
         text += `\t  · [view alert on alertmanager](${alertLink}) ⬈\n\n`
         silenceButtons.push(
-          this.bot.inlineButton(`Silence: ${alertVal[0].fingerprint}`, {
-            callback: `silence_${alertVal[0].fingerprint}`,
+          this.bot.inlineButton(`Silence: ${firstAlertVal.fingerprint}`, {
+            callback: `silence_${firstAlertVal.fingerprint}`,
           })
         )
       })
