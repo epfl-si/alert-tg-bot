@@ -2,7 +2,8 @@ SHELL := /bin/bash
 
 ORG_NAME=epflsi
 IMAGE_NAME=alert-tg-bot
-TG_GROUP_ID=-460587583
+TG_GROUP_ID=-390184493
+# TG_GROUP_ID=-460587583 # test
 
 .PHONY: _help
 ## Print this help (see <https://gist.github.com/klmr/575726c7e05d8780505a> for explanation)
@@ -27,7 +28,7 @@ _dev:
 .PHONY: _release
 ## Build, tag and publish the Docker image
 _release:
-	$(MAKE) docker-rm docker-build docker-tag docker-push
+	$(MAKE) docker-rm npm-ci es-lint ts-transpile docker-build docker-tag docker-push
 
 .PHONY: docker-rm
 ## Remove ${IMAGE_NAME} image 
