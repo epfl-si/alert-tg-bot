@@ -1,5 +1,6 @@
 // https://github.com/prometheus/alertmanager/blob/master/api/v2/openapi.yaml
-import nodeFetch, { Headers } from 'node-fetch'
+import nodeFetch from 'node-fetch'
+import { Headers } from 'node-fetch'
 import { isJsonString } from './utils'
 import { logger } from './logger'
 
@@ -42,9 +43,9 @@ export default class AlertManager {
     const options: any = { headers: this.headers }
     logger.info(`getAlertmanagerAPI fetch ${this.AM_API_URL}/${endpoint}`)
     return nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
-      .then(res => res.json())
-      .then(json => json)
-      .catch(err => logger.error(err))
+      .then((res: any) => res.json())
+      .then((json: string) => json)
+      .catch((err: any) => logger.error(err))
   }
 
   public postAlertmanagerAPI = async (endpoint: string, body: any) => {
@@ -53,26 +54,26 @@ export default class AlertManager {
     options.body = JSON.stringify(body)
     options.headers.append('Content-Type', 'application/json')
     return nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
-      .then(res => {
+      .then((res: { status: any; statusText: any; size: number; ok: any; body: any; json: () => any; text: () => any; }) => {
         logger.info(`postAlertmanagerAPI status: ${res.status} (${res.statusText})`)
         if (res.size > 0 && res.ok && isJsonString(res.body)) {
           return res.json()
         }
         return res.text()
       })
-      .then(_body => _body || 'body is empty')
-      .catch(err => logger.error(err))
+      .then((_body: any) => _body || 'body is empty')
+      .catch((err: any) => logger.error(err))
   }
 
   public deleteAlertmanagerAPI = async (endpoint: string) => {
     const options: any = { headers: this.headers }
     options.method = 'delete'
     return nodeFetch(`${this.AM_API_URL}/${endpoint}`, options)
-      .then(res => {
+      .then((res: { status: any; statusText: any; ok: any; }) => {
         logger.info(`deleteAlertmanagerAPI status: ${res.status} (${res.statusText})`)
         return res.ok
       })
-      .catch(err => logger.error(err))
+      .catch((err: any) => logger.error(err))
   }
 
   public filterWithFingerprint = async (fingerprint: string) => {
