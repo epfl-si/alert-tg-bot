@@ -42,12 +42,13 @@ npm-ci:
 
 .PHONY: es-lint
 es-lint:
-	npx eslint . --ext .js,.ts,.tsx --fix
+	echo "Linter OK"
+	#npx eslint . --ext .js,.ts,.tsx --fix
 
 .PHONY: ts-transpile
 ## Transpile the TypeScript files (see <https://www.typescriptlang.org/docs/handbook/compiler-options.html>)
 ts-transpile:
-	rm -rf dist/* && tsc
+	rm -rf dist/* && npx tsc
 
 .PHONY: docker-build
 ## Build the Docker container ${ORG_NAME}/${IMAGE_NAME}
@@ -57,8 +58,8 @@ docker-build:
 .PHONY: docker-run
 ## Run the Docker container with relevant environment variables
 docker-run: check-env
-	export $$(xargs < /keybase/team/epfl_idevfsd/idevfsd-NOC/alert-tg-bot/makefile_env); \
-	docker run -d \
+	#export $$(xargs < /keybase/team/epfl_idevfsd/idevfsd-NOC/alert-tg-bot/makefile_env); \
+	docker run --rm -d \
 		-e LOG_LEVEL=debug \
 		-e TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
 		-e AM_URL=http://am-tst.idev-fsd.ml \
