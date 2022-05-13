@@ -1,5 +1,5 @@
 # Use the official Node.js image as parent image
-FROM node:current-slim
+FROM node:lts-slim
 
 # Set the working directory. If it doesn't exists, it'll be created
 WORKDIR /app
