@@ -29,7 +29,7 @@ app.post('/*', jsonParser, async (req: any, res: any) => {
     try {
       const response = await telegram.sendAlertMessage(chatOrGroupID, req.body)
       res.send(`Telegram message was sent to ${response.chat.title} [#${chatOrGroupID}]!`)
-    } catch (e) {
+    } catch (e: any) {
       logger.error(JSON.stringify(e))
       res.send(`Error: ${e.description}`)
     }

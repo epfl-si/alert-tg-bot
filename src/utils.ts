@@ -22,9 +22,9 @@ const isJsonString = (text: any) => {
  * based on now() <-> eventDate1.
  */
 const humanizeDuration = (eventDate1: Date) => {
-  JavascriptTimeAgo.addLocale(en)
+  JavascriptTimeAgo.addLocale(en as any)
   const timeAgo = new JavascriptTimeAgo('en-US')
-  return timeAgo.format(eventDate1.getTime(), 'time')
+  return timeAgo.format(eventDate1.getTime(), 'time' as any)
 }
 
 /**
@@ -32,7 +32,7 @@ const humanizeDuration = (eventDate1: Date) => {
  * Note that it can starts with a `-`, meaning that it's a group.
  */
 const validateGroupOrChatID = (id: string) => {
-  const re = new RegExp(/^[-]?[\d]{6,9}$/)
+  const re = new RegExp(/^[-]?[\d]{6,20}$/)
   return id.match(re)
 }
 
