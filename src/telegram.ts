@@ -49,6 +49,9 @@ export default class Telegram {
       case 'firing':
         msg.message += '🔥 Firing 🔥\n\n'
         break
+      case 'resolved':
+        msg.message += '✅ Resolved ✅\n\n'
+        break
       default:
         msg.message += '🚨 Alerting 🚨\n\n'
         break
