@@ -4,9 +4,6 @@ FROM node:lts-slim
 # Set the working directory. If it doesn't exists, it'll be created
 WORKDIR /app
 
-ARG NODE_ENV="production"
-ENV NODE_ENV="production"
-
 # Expose the port 3000
 EXPOSE 3000
 
@@ -19,7 +16,12 @@ RUN npm install
 
 # Copy all files from current folder
 # inside our image in the folder `/app`
-COPY dist/*.js /app/src/
+COPY tsconfig.json .
+COPY src/*.ts /app/src/
+
+ENV NODE_ENV="production"
+
+RUN npx tsc
 
 # Start the app
-ENTRYPOINT ["node", "src/app.js"]
+ENTRYPOINT ["node", "dist/app.js"]
