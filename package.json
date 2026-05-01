@@ -23,7 +23,7 @@
   "homepage": "https://github.com/epfl-si/alert-tg-bot#readme",
   "dependencies": {
     "body-parser": "^1.20.0",
-    "express": "^4.18.1",
+    "express": "^4.22.1",
     "javascript-time-ago": "^2.3.13",
     "moment": "^2.29.3",
     "node-fetch": "^2.6.7",
